@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use QuantForge in academic work, please cite it as below."
+title: "QuantForge: a systematic trading research platform"
+authors:
+  - family-names: "Zhu"
+    given-names: "Timothy A."
+version: 0.1.0
+date-released: "2026-05-13"
+license: MIT
+url: "https://github.com/timmyzhu/quantforge"
+repository-code: "https://github.com/timmyzhu/quantforge"
+keywords:
+  - "quantitative finance"
+  - "algorithmic trading"
+  - "backtesting"
+  - "portfolio optimization"
+  - "factor investing"
+  - "risk management"

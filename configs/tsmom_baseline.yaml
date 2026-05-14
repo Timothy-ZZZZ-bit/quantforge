@@ -1,0 +1,64 @@
+name: tsmom_baseline
+description: >
+  Inverse-vol-scaled time-series momentum on a cross-asset ETF basket.
+  Replicates Moskowitz-Ooi-Pedersen (2012) at a daily granularity.
+seed: 1729
+rebalance: M
+
+universe:
+  name: cross-asset-etf
+  tickers:
+    - SPY
+    - QQQ
+    - IWM
+    - EFA
+    - EEM
+    - TLT
+    - IEF
+    - LQD
+    - HYG
+    - GLD
+    - SLV
+    - USO
+  start: "2005-01-03"
+  end: "2024-12-31"
+  benchmark: SPY
+
+signals:
+  - name: tsmom_12_1
+    kind: tsmom
+    params:
+      lookback: 252
+      skip: 21
+      vol_window: 63
+      target_vol_annual: 0.10
+    weight: 1.0
+
+allocator:
+  kind: equal_weight
+  params:
+    mode: signed
+
+costs:
+  commission_bps: 1.0
+  slippage_bps: 5.0
+  impact_coef: 0.10
+  borrow_bps_annual: 50.0
+  participation_cap: 0.10
+
+constraints:
+  max_weight: 0.20
+  min_weight: -0.20
+  gross_leverage: 1.5
+
+validation:
+  walk_forward:
+    train_years: 5
+    test_years: 1
+    mode: rolling
+  cpcv:
+    n_groups: 10
+    n_test_groups: 2
+    embargo: 5
+  cost_multipliers: [0.0, 1.0, 2.0, 5.0]
+  bootstrap_replicates: 1000

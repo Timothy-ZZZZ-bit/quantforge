@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>QuantForge Tearsheet | {{ run_name }}</title>
+<style>
+body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; max-width: 1100px; margin: 24px auto; color: #1d1d1f; padding: 0 24px; }
+h1 { border-bottom: 1px solid #d2d2d7; padding-bottom: 6px; }
+h2 { margin-top: 32px; }
+.kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; margin: 16px 0 24px; }
+.kpi { background: #f5f5f7; border-radius: 10px; padding: 12px 14px; }
+.kpi .label { font-size: 12px; color: #6e6e73; text-transform: uppercase; letter-spacing: 0.04em; }
+.kpi .value { font-size: 22px; font-weight: 600; }
+.kpi .sub { font-size: 12px; color: #6e6e73; }
+table { border-collapse: collapse; width: 100%; font-size: 13px; }
+th, td { border-bottom: 1px solid #e5e5ea; padding: 6px 8px; text-align: right; }
+th:first-child, td:first-child { text-align: left; }
+.config { background: #f5f5f7; padding: 12px; border-radius: 10px; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; white-space: pre-wrap; }
+.note { color: #6e6e73; font-size: 13px; }
+</style>
+</head>
+<body>
+<h1>{{ run_name }}</h1>
+<p class="note">{{ description }}</p>
+<p class="note">Run ID: <code>{{ run_id }}</code> &middot; Config hash: <code>{{ config_hash }}</code> &middot; Generated {{ generated_at }}</p>
+
+<h2>Headline KPIs</h2>
+<div class="kpi-grid">
+{% for k in kpis %}
+<div class="kpi">
+  <div class="label">{{ k.label }}</div>
+  <div class="value">{{ k.value }}</div>
+  {% if k.sub %}<div class="sub">{{ k.sub }}</div>{% endif %}
+</div>
+{% endfor %}
+</div>
+
+<h2>Equity curve vs benchmark</h2>
+{{ equity_chart }}
+
+<h2>Drawdown</h2>
+{{ drawdown_chart }}
+
+<h2>Rolling 12-month Sharpe and rolling beta</h2>
+{{ rolling_chart }}
+
+<h2>Return distribution</h2>
+{{ return_dist_chart }}
+
+<h2>Per-year breakdown</h2>
+{{ per_year_table | safe }}
+
+<h2>Factor attribution</h2>
+{{ factor_table | safe }}
+
+<h2>Stress tests</h2>
+{{ stress_table | safe }}
+
+<h2>CPCV OOS Sharpe distribution</h2>
+{{ cpcv_chart }}
+
+<h2>Configuration</h2>
+<div class="config">{{ config_yaml }}</div>
+
+<p class="note">QuantForge {{ version }} &middot; MIT License &middot; Built for honest, reproducible research.</p>
+</body>
+</html>

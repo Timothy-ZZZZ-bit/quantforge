@@ -1,0 +1,52 @@
+name: pairs_etf
+description: >
+  Engle-Granger cointegration pairs trade across a curated sector ETF set.
+seed: 1729
+rebalance: W
+
+universe:
+  name: sector-etf
+  tickers:
+    - XLF
+    - XLK
+    - XLE
+    - XLI
+    - XLY
+    - XLP
+    - XLV
+    - XLU
+    - XLB
+    - XLRE
+    - XLC
+  start: "2015-01-02"
+  end: "2024-12-31"
+  benchmark: SPY
+
+signals:
+  - name: pairs_eg
+    kind: pairs
+    params:
+      window: 126
+      entry_z: 2.0
+      exit_z: 0.5
+      stop_z: 4.0
+      max_half_life_days: 30.0
+      adf_pvalue_threshold: 0.05
+    weight: 1.0
+
+allocator:
+  kind: equal_weight
+  params:
+    mode: signed
+
+costs:
+  commission_bps: 1.0
+  slippage_bps: 5.0
+  impact_coef: 0.10
+  borrow_bps_annual: 50.0
+  participation_cap: 0.10
+
+constraints:
+  max_weight: 0.15
+  min_weight: -0.15
+  gross_leverage: 1.0

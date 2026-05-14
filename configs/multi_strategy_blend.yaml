@@ -1,0 +1,91 @@
+name: multi_strategy_blend
+description: >
+  HRP-allocated blend of TSMOM, XSMOM, mean-reversion, and quality on a
+  cross-asset ETF basket. This is the headline configuration for the
+  README and the v0.1.0 release.
+seed: 1729
+rebalance: M
+
+universe:
+  name: cross-asset-etf
+  tickers:
+    - SPY
+    - QQQ
+    - IWM
+    - EFA
+    - EEM
+    - EWJ
+    - TLT
+    - IEF
+    - LQD
+    - HYG
+    - TIP
+    - GLD
+    - SLV
+    - USO
+    - DBC
+    - UUP
+  start: "2008-01-02"
+  end: "2024-12-31"
+  benchmark: SPY
+
+signals:
+  - name: tsmom
+    kind: tsmom
+    params:
+      lookback: 252
+      skip: 21
+      vol_window: 63
+      target_vol_annual: 0.10
+    weight: 0.40
+  - name: xsmom
+    kind: xsmom
+    params:
+      lookback: 252
+      skip: 21
+      decile: 0.30
+    weight: 0.30
+  - name: ou
+    kind: ou
+    params:
+      market_ticker: SPY
+      window: 63
+      entry_z: 2.0
+      exit_z: 0.5
+      max_half_life_days: 30.0
+    weight: 0.15
+  - name: quality
+    kind: quality
+    params:
+      lookback: 252
+    weight: 0.15
+
+allocator:
+  kind: hrp
+  params:
+    gross_leverage: 1.0
+
+costs:
+  commission_bps: 1.0
+  slippage_bps: 5.0
+  impact_coef: 0.10
+  borrow_bps_annual: 50.0
+  participation_cap: 0.10
+
+constraints:
+  max_weight: 0.20
+  min_weight: -0.20
+  gross_leverage: 1.0
+  turnover_cap: 0.50
+
+validation:
+  walk_forward:
+    train_years: 5
+    test_years: 1
+    mode: rolling
+  cpcv:
+    n_groups: 10
+    n_test_groups: 2
+    embargo: 5
+  cost_multipliers: [0.0, 1.0, 2.0, 5.0]
+  bootstrap_replicates: 1000

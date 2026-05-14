@@ -1,0 +1,59 @@
+name: ml_meta_label
+description: >
+  Gradient-boosted classifier with triple-barrier labels on the ETF basket.
+  Demonstrates ML signal integration; not a return-claiming headline.
+seed: 1729
+rebalance: M
+
+universe:
+  name: cross-asset-etf
+  tickers:
+    - SPY
+    - QQQ
+    - IWM
+    - EFA
+    - EEM
+    - TLT
+    - IEF
+    - LQD
+    - HYG
+    - GLD
+    - SLV
+    - USO
+  start: "2010-01-04"
+  end: "2024-12-31"
+  benchmark: SPY
+
+signals:
+  - name: ml_gbc
+    kind: tsmom         # placeholder; ML signal is built via the dedicated harness
+    params:
+      lookback: 252
+      skip: 21
+      vol_window: 63
+      target_vol_annual: 0.10
+    weight: 0.5
+  - name: xsmom
+    kind: xsmom
+    params:
+      lookback: 252
+      skip: 21
+      decile: 0.30
+    weight: 0.5
+
+allocator:
+  kind: hrp
+  params:
+    gross_leverage: 1.0
+
+costs:
+  commission_bps: 1.0
+  slippage_bps: 5.0
+  impact_coef: 0.10
+  borrow_bps_annual: 50.0
+  participation_cap: 0.10
+
+constraints:
+  max_weight: 0.20
+  min_weight: -0.20
+  gross_leverage: 1.0

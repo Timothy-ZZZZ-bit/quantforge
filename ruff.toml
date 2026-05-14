@@ -1,0 +1,64 @@
+target-version = "py311"
+line-length = 100
+extend-exclude = [
+  "notebooks",
+  "docs/_build",
+  ".venv",
+]
+
+[lint]
+select = [
+  "E",
+  "F",
+  "W",
+  "I",
+  "N",
+  "UP",
+  "B",
+  "C4",
+  "DTZ",
+  "PIE",
+  "RET",
+  "SIM",
+  "ARG",
+  "PTH",
+  "PL",
+  "NPY",
+  "RUF",
+]
+ignore = [
+  "E501",
+  "PLR0913",
+  "PLR2004",
+  "PLR0915",
+  "PLR0912",
+  "PLR0911",
+  "N803",
+  "N806",
+  "RUF005",
+  "B905",   # zip strict=  noisy across this codebase
+  "C408",   # dict() literal noise
+  "PLW2901",
+  "SIM108",
+  "RET504",
+  "SIM103",
+  "SIM114",
+  "SIM118",
+  "RUF013",
+  "PLR0904",
+  "NPY002",
+  "PLC0415",  # local imports are deliberate in CLI / factories
+  "PLW0603",  # module-level _CONFIGURED is the canonical pattern for one-shot setup
+  "RUF059",   # unpack ignores are fine
+]
+
+[lint.per-file-ignores]
+"tests/**/*.py" = ["PLR2004", "ARG001", "ARG002", "B011", "PLR0915"]
+"quantforge/cli.py" = ["B008"]
+"quantforge/signals/*.py" = ["ARG002"]
+"quantforge/portfolio/*.py" = ["ARG002"]
+"quantforge/backtest/*.py" = ["ARG001"]
+
+[format]
+quote-style = "double"
+indent-style = "space"
