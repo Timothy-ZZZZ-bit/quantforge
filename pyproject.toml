@@ -78,9 +78,9 @@ pdf = [
 quantforge = "quantforge.cli:app"
 
 [project.urls]
-Homepage = "https://github.com/timmyzhu/quantforge"
-Documentation = "https://timmyzhu.github.io/quantforge"
-Repository = "https://github.com/timmyzhu/quantforge"
+Homepage = "https://github.com/Timothy-ZZZZ-bit/quantforge"
+Documentation = "https://Timothy-ZZZZ-bit.github.io/quantforge"
+Repository = "https://github.com/Timothy-ZZZZ-bit/quantforge"
 
 [tool.hatch.build.targets.wheel]
 packages = ["quantforge"]

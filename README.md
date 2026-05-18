@@ -2,8 +2,8 @@
 
 > Production-grade systematic trading research platform: factor models, HRP / risk-parity allocation, event-driven backtests, CPCV validation, deflated Sharpe.
 
-[![CI](https://github.com/timmyzhu/quantforge/actions/workflows/ci.yml/badge.svg)](https://github.com/timmyzhu/quantforge/actions/workflows/ci.yml)
-[![Docs](https://github.com/timmyzhu/quantforge/actions/workflows/docs.yml/badge.svg)](https://timmyzhu.github.io/quantforge)
+[![CI](https://github.com/Timothy-ZZZZ-bit/quantforge/actions/workflows/ci.yml/badge.svg)](https://github.com/Timothy-ZZZZ-bit/quantforge/actions/workflows/ci.yml)
+[![Docs](https://github.com/Timothy-ZZZZ-bit/quantforge/actions/workflows/docs.yml/badge.svg)](https://Timothy-ZZZZ-bit.github.io/quantforge)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11+-blue.svg)](https://www.python.org/downloads/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Code style: black](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
@@ -51,7 +51,7 @@ flowchart LR
 ## Quickstart
 
 ```bash
-git clone https://github.com/timmyzhu/quantforge.git
+git clone https://github.com/Timothy-ZZZZ-bit/quantforge.git
 cd quantforge
 
 # Install uv if you don't have it: https://docs.astral.sh/uv
