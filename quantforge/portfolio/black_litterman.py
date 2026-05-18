@@ -98,7 +98,9 @@ class BlackLittermanAllocator(Allocator):
             pd.Series(mu_hat, index=tickers),
             returns_history=pd.DataFrame(
                 sigma, index=range(sigma.shape[0]), columns=tickers
-            ).iloc[:0],  # trick: empty frame so MVO uses identity sigma
+            ).iloc[
+                :0
+            ],  # trick: empty frame so MVO uses identity sigma
         )
 
 

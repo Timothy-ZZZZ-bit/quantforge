@@ -27,7 +27,7 @@ def _yf_columns(df: pd.DataFrame, ticker: str) -> pd.DataFrame:
     """Normalize yfinance multi-index columns to lowercase singles."""
     if isinstance(df.columns, pd.MultiIndex):
         # yfinance returns (field, ticker) when multiple tickers, single level otherwise.
-        df = df.xs(ticker, axis=1, level=1, drop_level=True)
+        df = pd.DataFrame(df.xs(ticker, axis=1, level=1, drop_level=True))
     rename = {
         "Open": "open",
         "High": "high",
@@ -37,7 +37,11 @@ def _yf_columns(df: pd.DataFrame, ticker: str) -> pd.DataFrame:
         "Volume": "volume",
     }
     out = df.rename(columns=rename)
-    keep = [c for c in ["open", "high", "low", "close", "adj_close", "volume"] if c in out.columns]
+    keep = [
+        c
+        for c in ["open", "high", "low", "close", "adj_close", "volume"]
+        if c in out.columns
+    ]
     out = out[keep].reset_index().rename(columns={"Date": "date", "index": "date"})
     out["ticker"] = ticker
     return out[["date", "ticker", *keep]]
@@ -83,7 +87,16 @@ def load_equity_panel(
             frames.append(_yf_columns(df, tk))
         if not frames:
             return pd.DataFrame(
-                columns=["date", "ticker", "open", "high", "low", "close", "adj_close", "volume"]
+                columns=[
+                    "date",
+                    "ticker",
+                    "open",
+                    "high",
+                    "low",
+                    "close",
+                    "adj_close",
+                    "volume",
+                ]
             )
         out = pd.concat(frames, ignore_index=True)
         out["date"] = pd.to_datetime(out["date"]).dt.tz_localize(None).dt.normalize()
@@ -117,7 +130,9 @@ def load_fama_french(
             ds = pdr.DataReader(f"F-F_Research_Data_Factors{suffix}", "famafrench")
             ff = ds[0]
         elif model in ("FF5", "FF5+MOM"):
-            ds5 = pdr.DataReader(f"F-F_Research_Data_5_Factors_2x3{suffix}", "famafrench")
+            ds5 = pdr.DataReader(
+                f"F-F_Research_Data_5_Factors_2x3{suffix}", "famafrench"
+            )
             ff = ds5[0]
             if model == "FF5+MOM":
                 mom = pdr.DataReader(f"F-F_Momentum_Factor{suffix}", "famafrench")[0]
@@ -221,8 +236,10 @@ def synthetic_equity_panel(
             }
         )
         out_frames.append(frame)
-    return pd.concat(out_frames, ignore_index=True).sort_values(["ticker", "date"]).reset_index(
-        drop=True
+    return (
+        pd.concat(out_frames, ignore_index=True)
+        .sort_values(["ticker", "date"])
+        .reset_index(drop=True)
     )
 
 

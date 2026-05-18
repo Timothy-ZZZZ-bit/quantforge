@@ -58,7 +58,7 @@ def get_logger(name: str | None = None, **bound: Any) -> structlog.stdlib.BoundL
     log = structlog.get_logger(name)
     if bound:
         log = log.bind(**bound)
-    return log  # type: ignore[no-any-return]
+    return log
 
 
 __all__ = ["configure", "get_logger", "new_run_id"]

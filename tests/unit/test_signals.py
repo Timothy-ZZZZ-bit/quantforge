@@ -30,7 +30,18 @@ def test_xsmom_balances_long_and_short(medium_panel):
 
 def test_ou_skipped_on_short_history():
     # Empty panel -> empty signal.
-    panel = pd.DataFrame(columns=["date", "ticker", "open", "high", "low", "close", "adj_close", "volume"])
+    panel = pd.DataFrame(
+        columns=[
+            "date",
+            "ticker",
+            "open",
+            "high",
+            "low",
+            "close",
+            "adj_close",
+            "volume",
+        ]
+    )
     sig = OUMeanReversion(window=63)
     out = sig.predict(panel)
     assert out.empty
@@ -50,8 +61,10 @@ def test_pairs_no_signals_on_independent_series():
             "date": np.tile(pd.bdate_range("2022-01-03", periods=n), 2),
             "ticker": ["X"] * n + ["Y"] * n,
             "adj_close": np.concatenate(
-                [100.0 * np.exp(np.cumsum(rng.normal(0, 0.01, n))),
-                 100.0 * np.exp(np.cumsum(rng.normal(0, 0.01, n)))]
+                [
+                    100.0 * np.exp(np.cumsum(rng.normal(0, 0.01, n))),
+                    100.0 * np.exp(np.cumsum(rng.normal(0, 0.01, n))),
+                ]
             ),
         }
     )

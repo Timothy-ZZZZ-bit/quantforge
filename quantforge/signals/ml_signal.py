@@ -43,7 +43,9 @@ def _build_feature_frame(panel: pd.DataFrame) -> pd.DataFrame:
         for L in (5, 21, 63, 252):
             feats[f"mom_{L}"] = momentum(adj.reset_index(drop=True), L, 0).to_numpy()
         for W in (21, 63):
-            feats[f"vol_{W}"] = realized_vol(sub.reset_index(), W, "close_to_close").to_numpy()
+            feats[f"vol_{W}"] = realized_vol(
+                sub.reset_index(), W, "close_to_close"
+            ).to_numpy()
         feats["fd_lp"] = frac_diff_ffd(np.log(adj), d=0.4).to_numpy()
         dollar_vol = sub["volume"] * adj
         feats["amihud_21"] = amihud_illiquidity(
@@ -83,7 +85,9 @@ class MLSignal(Signal):
         learning_rate: float = 0.05,
         seed: int = 1729,
     ) -> None:
-        self.barrier_config = barrier_config or TripleBarrierConfig(pt=2.0, sl=2.0, vertical=21)
+        self.barrier_config = barrier_config or TripleBarrierConfig(
+            pt=2.0, sl=2.0, vertical=21
+        )
         self.horizon = horizon
         self.n_estimators = n_estimators
         self.max_depth = max_depth
@@ -102,11 +106,15 @@ class MLSignal(Signal):
             adj = sub["adj_close"]
             vol = realized_vol(sub.reset_index(), 21, "close_to_close")
             vol.index = sub.index
-            tb = triple_barrier(adj, vol.fillna(vol.median()), config=self.barrier_config)
+            tb = triple_barrier(
+                adj, vol.fillna(vol.median()), config=self.barrier_config
+            )
             if tb.empty:
                 continue
             frames.append(
-                pd.DataFrame({"date": tb.index, "ticker": tk, "y": tb["bin"].astype(int)})
+                pd.DataFrame(
+                    {"date": tb.index, "ticker": tk, "y": tb["bin"].astype(int)}
+                )
             )
         if not frames:
             return pd.DataFrame(), pd.Series(dtype=float)
@@ -115,7 +123,9 @@ class MLSignal(Signal):
         if joined.empty:
             return pd.DataFrame(), pd.Series(dtype=float)
         joined["target"] = (joined["y"] > 0).astype(int)
-        feature_cols = [c for c in joined.columns if c not in ("date", "ticker", "y", "target")]
+        feature_cols = [
+            c for c in joined.columns if c not in ("date", "ticker", "y", "target")
+        ]
         self._feature_cols = feature_cols
         return joined[feature_cols], joined["target"]
 
@@ -140,12 +150,16 @@ class MLSignal(Signal):
         feats = _build_feature_frame(panel)
         if feats.empty:
             return pd.Series(dtype=float, name=self.name)
-        latest = feats.sort_values("date").groupby("ticker", observed=True).tail(1).dropna()
+        latest = (
+            feats.sort_values("date").groupby("ticker", observed=True).tail(1).dropna()
+        )
         if latest.empty:
             return pd.Series(dtype=float, name=self.name)
         X = latest[self._feature_cols]
         proba_up = self._model.predict_proba(X)[:, 1]
-        out = pd.Series(2.0 * proba_up - 1.0, index=latest["ticker"].to_numpy(), name=self.name)
+        out = pd.Series(
+            2.0 * proba_up - 1.0, index=latest["ticker"].to_numpy(), name=self.name
+        )
         # Zero-cross-sectional-mean dollar neutral scaling.
         out = out - out.mean()
         gross = out.abs().sum()

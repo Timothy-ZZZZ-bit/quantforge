@@ -41,7 +41,11 @@ def log_returns(prices: pd.Series, fill_na: bool = False) -> pd.Series:
     """
     if (prices <= 0).any():
         raise ValueError("log_returns requires strictly positive prices")
-    r = np.log(prices / prices.shift(1))
+    r = pd.Series(
+        np.log((prices / prices.shift(1)).to_numpy()),
+        index=prices.index,
+        name=prices.name,
+    )
     return r.dropna() if fill_na else r
 
 
@@ -147,7 +151,9 @@ def annualize_volatility(daily_vol: float, periods_per_year: int = 252) -> float
     return float(daily_vol * np.sqrt(periods_per_year))
 
 
-def reconstruct_prices_from_log_returns(log_rets: pd.Series, base: float = 1.0) -> pd.Series:
+def reconstruct_prices_from_log_returns(
+    log_rets: pd.Series, base: float = 1.0
+) -> pd.Series:
     """Reconstruct a price path from log returns (used in tests)."""
     if abs(base) < EPS:
         raise ValueError("base must be non-zero")

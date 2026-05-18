@@ -66,7 +66,9 @@ class TimeSeriesMomentum(Signal):
             if len(adj) < self.lookback + self.skip + self.vol_window:
                 continue
             mom_series = momentum(adj.reset_index(drop=True), self.lookback, self.skip)
-            cc_returns = np.log(adj / adj.shift(1)).dropna()
+            cc_returns = pd.Series(
+                np.log((adj / adj.shift(1)).to_numpy()), index=adj.index
+            ).dropna()
             sigma_d = cc_returns.rolling(self.vol_window).std(ddof=1).iloc[-1]
             if not np.isfinite(sigma_d) or sigma_d <= 0:
                 continue
@@ -75,7 +77,7 @@ class TimeSeriesMomentum(Signal):
             if not np.isfinite(mom):
                 continue
             scaled = float(np.sign(mom) * (self.target_vol_annual / sigma_annual))
-            scores[tk] = scaled
+            scores[str(tk)] = scaled
         return pd.Series(scores, name="tsmom")
 
 

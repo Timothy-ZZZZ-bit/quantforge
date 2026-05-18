@@ -93,7 +93,10 @@ class MeanVariance(Allocator):
         bounds = [(self.min_weight, self.max_weight) for _ in range(n)]
         # Use the gross-leverage cap as an inequality.
         constraints = [
-            {"type": "ineq", "fun": lambda w: self.gross_leverage - float(np.sum(np.abs(w)))}
+            {
+                "type": "ineq",
+                "fun": lambda w: self.gross_leverage - float(np.sum(np.abs(w))),
+            }
         ]
         w0 = np.zeros(n)
         res = minimize(

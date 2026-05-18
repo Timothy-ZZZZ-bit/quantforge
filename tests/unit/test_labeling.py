@@ -12,17 +12,25 @@ from quantforge.features.labeling import (
 
 def test_triple_barrier_upper_hit():
     # Monotone-up price series should mostly produce +1 labels.
-    prices = pd.Series(np.linspace(100.0, 200.0, 100), index=pd.date_range("2024", periods=100))
+    prices = pd.Series(
+        np.linspace(100.0, 200.0, 100), index=pd.date_range("2024", periods=100)
+    )
     vol = pd.Series(0.01, index=prices.index)
-    out = triple_barrier(prices, vol, config=TripleBarrierConfig(pt=2.0, sl=2.0, vertical=10))
+    out = triple_barrier(
+        prices, vol, config=TripleBarrierConfig(pt=2.0, sl=2.0, vertical=10)
+    )
     assert (out["bin"] >= 0).all()
     assert (out["bin"] > 0).sum() >= 1
 
 
 def test_triple_barrier_lower_hit():
-    prices = pd.Series(np.linspace(200.0, 100.0, 100), index=pd.date_range("2024", periods=100))
+    prices = pd.Series(
+        np.linspace(200.0, 100.0, 100), index=pd.date_range("2024", periods=100)
+    )
     vol = pd.Series(0.01, index=prices.index)
-    out = triple_barrier(prices, vol, config=TripleBarrierConfig(pt=2.0, sl=2.0, vertical=10))
+    out = triple_barrier(
+        prices, vol, config=TripleBarrierConfig(pt=2.0, sl=2.0, vertical=10)
+    )
     assert (out["bin"] <= 0).all()
     assert (out["bin"] < 0).sum() >= 1
 

@@ -47,7 +47,16 @@ class QualityReport:
         return self.return_spike_count == 0 and close_miss < 0.01
 
 
-REQUIRED_COLS = ("date", "ticker", "open", "high", "low", "close", "adj_close", "volume")
+REQUIRED_COLS = (
+    "date",
+    "ticker",
+    "open",
+    "high",
+    "low",
+    "close",
+    "adj_close",
+    "volume",
+)
 
 
 def audit_panel(
@@ -90,31 +99,41 @@ def audit_panel(
             warnings=[f"missing required columns: {missing_cols}"],
         )
 
-    miss_frac = {c: float(df[c].isna().mean()) for c in REQUIRED_COLS if c not in ("date", "ticker")}
+    miss_frac = {
+        c: float(df[c].isna().mean())
+        for c in REQUIRED_COLS
+        if c not in ("date", "ticker")
+    }
     zero_vol = float((df["volume"] == 0).mean())
 
     # Per-ticker rolling identical-close detection.
     panel = df.sort_values(["ticker", "date"]).copy()
     panel["close_diff"] = panel.groupby("ticker")["adj_close"].diff().abs()
-    panel["stale_run"] = (
-        (panel["close_diff"].fillna(0.0) == 0).astype(int)
-        .groupby(panel["ticker"]).cumsum()
-        - (panel["close_diff"].fillna(0.0) == 0).astype(int).groupby(panel["ticker"]).cumcount()
+    panel["stale_run"] = (panel["close_diff"].fillna(0.0) == 0).astype(int).groupby(
+        panel["ticker"]
+    ).cumsum() - (panel["close_diff"].fillna(0.0) == 0).astype(int).groupby(
+        panel["ticker"]
+    ).cumcount()
+    stale_frac = float(
+        (
+            panel.groupby("ticker")["close_diff"].apply(
+                lambda s: (s.fillna(0.0) == 0)
+                .rolling(stale_window)
+                .sum()
+                .fillna(0)
+                .ge(stale_window)
+                .mean()
+            )
+        ).mean()
     )
-    stale_frac = float((panel.groupby("ticker")["close_diff"].apply(
-        lambda s: (s.fillna(0.0) == 0).rolling(stale_window).sum().fillna(0).ge(stale_window).mean()
-    )).mean())
 
-    # Spike detection per ticker.
-    grouped = panel.groupby("ticker", group_keys=False)
-    ret = grouped["adj_close"].apply(lambda s: np.log(s / s.shift(1)))
-    z = grouped.apply(lambda g: (
-        (np.log(g["adj_close"] / g["adj_close"].shift(1))
-         - np.log(g["adj_close"] / g["adj_close"].shift(1)).mean())
-        / np.log(g["adj_close"] / g["adj_close"].shift(1)).std(ddof=0)
-    ))
-    if isinstance(z, pd.DataFrame):
-        z = z.stack()
+    # Spike detection per ticker, vectorized with group transforms.
+    by_ticker = panel.groupby("ticker", observed=True)["adj_close"]
+    log_ret = by_ticker.transform(lambda s: np.log(s / s.shift(1)))
+    ret_groups = log_ret.groupby(panel["ticker"], observed=True)
+    z = (log_ret - ret_groups.transform("mean")) / ret_groups.transform(
+        lambda s: s.std(ddof=0)
+    )
     spike_count = int((z.abs() > spike_sigma).sum())
 
     warnings_: list[str] = []
@@ -141,8 +160,6 @@ def audit_panel(
         warnings=warnings_,
     )
     _log.info("audit.complete", **report.to_dict())
-    # Silence "ret" unused warning while keeping the computation visible for review.
-    _ = ret
     return report
 
 

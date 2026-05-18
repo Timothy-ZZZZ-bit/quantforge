@@ -18,9 +18,13 @@ from quantforge.metrics.performance import (
 from quantforge.metrics.psr import deflated_sharpe, probabilistic_sharpe
 
 
-def _rets(seed: int = 0, n: int = 252 * 3, mu: float = 0.0004, sigma: float = 0.01) -> pd.Series:
+def _rets(
+    seed: int = 0, n: int = 252 * 3, mu: float = 0.0004, sigma: float = 0.01
+) -> pd.Series:
     rng = np.random.default_rng(seed)
-    return pd.Series(rng.normal(mu, sigma, n), index=pd.bdate_range("2018-01-02", periods=n))
+    return pd.Series(
+        rng.normal(mu, sigma, n), index=pd.bdate_range("2018-01-02", periods=n)
+    )
 
 
 def test_sharpe_known_ratio():

@@ -35,7 +35,9 @@ class CrossSectionalMomentum(Signal):
 
     name = "xsmom"
 
-    def __init__(self, lookback: int = 252, skip: int = 21, decile: float = 0.10) -> None:
+    def __init__(
+        self, lookback: int = 252, skip: int = 21, decile: float = 0.10
+    ) -> None:
         if not 0 < decile < 0.5:
             raise ValueError("decile must be in (0, 0.5)")
         self.lookback = lookback
@@ -56,7 +58,7 @@ class CrossSectionalMomentum(Signal):
             adj = sub["adj_close"].reset_index(drop=True)
             mom = momentum(adj, self.lookback, self.skip).iloc[-1]
             if np.isfinite(mom):
-                moms[tk] = float(mom)
+                moms[str(tk)] = float(mom)
         if not moms:
             return pd.Series(dtype=float, name="xsmom")
         s = pd.Series(moms, name="xsmom")

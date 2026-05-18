@@ -32,18 +32,26 @@ class PortfolioState:
     equity_curve: list[tuple[pd.Timestamp, float]] = field(default_factory=list)
     turnover: list[tuple[pd.Timestamp, float]] = field(default_factory=list)
     gross_leverage: list[tuple[pd.Timestamp, float]] = field(default_factory=list)
-    weight_history: list[tuple[pd.Timestamp, dict[str, float]]] = field(default_factory=list)
+    weight_history: list[tuple[pd.Timestamp, dict[str, float]]] = field(
+        default_factory=list
+    )
 
     def mark_to_market(self, date: pd.Timestamp, prices: dict[str, float]) -> float:
         """Mark to market: equity = cash + sum(shares * price)."""
-        pos_value = sum(self.shares.get(t, 0.0) * prices.get(t, np.nan) for t in self.shares)
+        pos_value = sum(
+            self.shares.get(t, 0.0) * prices.get(t, np.nan) for t in self.shares
+        )
         equity = self.cash + (pos_value if np.isfinite(pos_value) else 0.0)
         self.equity_curve.append((date, equity))
-        gross = sum(abs(self.shares.get(t, 0.0)) * prices.get(t, 0.0) for t in self.shares)
+        gross = sum(
+            abs(self.shares.get(t, 0.0)) * prices.get(t, 0.0) for t in self.shares
+        )
         self.gross_leverage.append((date, gross / equity if equity > 0 else 0.0))
         return equity
 
-    def apply_fill(self, ticker: str, shares_delta: float, price: float, cost: float) -> None:
+    def apply_fill(
+        self, ticker: str, shares_delta: float, price: float, cost: float
+    ) -> None:
         """Apply a single trade fill to the state."""
         notional = shares_delta * price
         self.cash -= notional
@@ -72,9 +80,9 @@ class PortfolioState:
     def weights_frame(self) -> pd.DataFrame:
         if not self.weight_history:
             return pd.DataFrame()
-        rows = []
+        rows: list[dict[str, object]] = []
         for d, w in self.weight_history:
-            row = {"date": d}
+            row: dict[str, object] = {"date": d}
             row.update(w)
             rows.append(row)
         return pd.DataFrame(rows).set_index("date").fillna(0.0)

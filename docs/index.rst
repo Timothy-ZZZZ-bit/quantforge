@@ -23,6 +23,7 @@ Production-grade systematic trading research platform.
    adr/ADR-003-ledoit-wolf-vs-oas
    adr/ADR-004-no-cvxpy
    adr/ADR-005-dsr-as-headline
+   adr/ADR-006-mypy-strict-pragmatism
 
 .. toctree::
    :maxdepth: 2

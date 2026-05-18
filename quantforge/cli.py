@@ -11,12 +11,15 @@ import pandas as pd
 import typer
 import yaml
 
+from quantforge.backtest.engine import BacktestResult
 from quantforge.config import RunConfig, load_config
 from quantforge.constants import REPORTS_DIR, RESEARCH_LOG_PATH, RUN_ARTIFACTS_DIR
 from quantforge.data import load_equity_panel, synthetic_equity_panel
 from quantforge.execution import CostModel
 from quantforge.logging import get_logger, new_run_id
+from quantforge.portfolio.base import Allocator
 from quantforge.reporting import TearsheetData, build_tearsheet
+from quantforge.signals.base import Signal
 
 app = typer.Typer(help="QuantForge command-line interface")
 _log = get_logger(__name__)
@@ -34,7 +37,7 @@ def _load_panel(cfg: RunConfig) -> pd.DataFrame:
     return panel
 
 
-def _build_signal_stack(cfg: RunConfig):
+def _build_signal_stack(cfg: RunConfig) -> list[tuple[float, Signal]]:
     from quantforge.signals import (
         CrossSectionalMomentum,
         OUMeanReversion,
@@ -50,7 +53,7 @@ def _build_signal_stack(cfg: RunConfig):
         "pairs": PairsTrade,
         "quality": QualityFactor,
     }
-    stack = []
+    stack: list[tuple[float, Signal]] = []
     for s in cfg.signals:
         cls = factories.get(s.kind)
         if cls is None:
@@ -59,7 +62,7 @@ def _build_signal_stack(cfg: RunConfig):
     return stack
 
 
-def _build_allocator(cfg: RunConfig):
+def _build_allocator(cfg: RunConfig) -> Allocator:
     from quantforge.portfolio import (
         BlackLittermanAllocator,
         EqualRiskContribution,
@@ -82,13 +85,19 @@ def _build_allocator(cfg: RunConfig):
 
 
 def _benchmark_equity(panel: pd.DataFrame, benchmark: str) -> pd.Series:
-    sub = panel[panel["ticker"] == benchmark].sort_values("date").set_index("date")["adj_close"]
+    sub = (
+        panel[panel["ticker"] == benchmark]
+        .sort_values("date")
+        .set_index("date")["adj_close"]
+    )
     if sub.empty:
         return pd.Series(dtype=float)
     return sub / sub.iloc[0] * 1_000_000.0
 
 
-def _run_one(cfg: RunConfig, panel: pd.DataFrame, run_id: str) -> dict:  # noqa: ARG001
+def _run_one(
+    cfg: RunConfig, panel: pd.DataFrame, run_id: str  # noqa: ARG001
+) -> BacktestResult:
     from quantforge.backtest import BacktestEngine
     from quantforge.portfolio import Constraints, apply_constraints
 
@@ -101,15 +110,21 @@ def _run_one(cfg: RunConfig, panel: pd.DataFrame, run_id: str) -> dict:  # noqa:
         turnover_cap=cfg.constraints.turnover_cap,
     )
 
-    wide_close = panel.pivot(index="date", columns="ticker", values="adj_close").sort_index()
-    returns_hist = np.log(wide_close / wide_close.shift(1))
+    wide_close = panel.pivot(
+        index="date", columns="ticker", values="adj_close"
+    ).sort_index()
+    returns_hist = pd.DataFrame(
+        np.log((wide_close / wide_close.shift(1)).to_numpy()),
+        index=wide_close.index,
+        columns=wide_close.columns,
+    )
 
     bench = cfg.universe.benchmark
     trading_panel = panel[panel["ticker"] != bench]
 
     prev_weights = pd.Series(dtype=float)
 
-    def weight_fn(date, visible):
+    def weight_fn(date: pd.Timestamp, visible: pd.DataFrame) -> dict[str, float]:
         # Blend signals with configured weights, then run allocator + constraints.
         blended: pd.Series = pd.Series(dtype=float)
         for w, sig in signals:
@@ -125,7 +140,7 @@ def _run_one(cfg: RunConfig, panel: pd.DataFrame, run_id: str) -> dict:  # noqa:
         nonlocal prev_weights
         weights = apply_constraints(weights, constraints, prior_weights=prev_weights)
         prev_weights = weights.copy()
-        return weights.to_dict()
+        return {str(k): float(v) for k, v in weights.to_dict().items()}
 
     engine = BacktestEngine(
         trading_panel,
@@ -137,16 +152,14 @@ def _run_one(cfg: RunConfig, panel: pd.DataFrame, run_id: str) -> dict:  # noqa:
             borrow_bps_annual=cfg.costs.borrow_bps_annual,
         ),
         initial_cash=1_000_000.0,
-        rebalance_freq=("BMS" if cfg.rebalance == "M" else ("W-FRI" if cfg.rebalance == "W" else "D")),
+        rebalance_freq=(
+            "BMS"
+            if cfg.rebalance == "M"
+            else ("W-FRI" if cfg.rebalance == "W" else "D")
+        ),
         participation_cap=cfg.costs.participation_cap,
     )
-    result = engine.run()
-    return {
-        "equity": result.equity,
-        "turnover": result.turnover,
-        "weights": result.weights,
-        "gross_leverage": result.gross_leverage,
-    }
+    return engine.run()
 
 
 @app.command("run-config")
@@ -159,12 +172,16 @@ def run_config(config_path: Path) -> None:
     result = _run_one(cfg, panel, run_id)
     artifact_dir = RUN_ARTIFACTS_DIR / run_id
     artifact_dir.mkdir(parents=True, exist_ok=True)
-    result["equity"].to_frame("equity").to_parquet(artifact_dir / "equity.parquet")
-    if not result["weights"].empty:
-        result["weights"].to_parquet(artifact_dir / "weights.parquet")
-    if not result["turnover"].empty:
-        result["turnover"].to_frame("turnover").to_parquet(artifact_dir / "turnover.parquet")
-    (artifact_dir / "config.yaml").write_text(yaml.safe_dump(cfg.model_dump(mode="json")))
+    result.equity.to_frame("equity").to_parquet(artifact_dir / "equity.parquet")
+    if not result.weights.empty:
+        result.weights.to_parquet(artifact_dir / "weights.parquet")
+    if not result.turnover.empty:
+        result.turnover.to_frame("turnover").to_parquet(
+            artifact_dir / "turnover.parquet"
+        )
+    (artifact_dir / "config.yaml").write_text(
+        yaml.safe_dump(cfg.model_dump(mode="json"))
+    )
     # Append to the research log.
     RESEARCH_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     with RESEARCH_LOG_PATH.open("a", encoding="utf-8") as fh:
@@ -173,8 +190,10 @@ def run_config(config_path: Path) -> None:
             "config_name": cfg.name,
             "config_hash": cfg.config_hash(),
             "timestamp": datetime.now(UTC).isoformat(),
-            "n_bars": len(result["equity"]),
-            "final_equity": float(result["equity"].iloc[-1]) if len(result["equity"]) else float("nan"),
+            "n_bars": len(result.equity),
+            "final_equity": (
+                float(result.equity.iloc[-1]) if len(result.equity) else float("nan")
+            ),
         }
         fh.write(json.dumps(rec) + "\n")
     typer.echo(f"run_id={run_id} artifacts={artifact_dir}")
@@ -194,10 +213,10 @@ def tearsheet(config_path: Path, output: Path | None = None) -> None:
         run_id=run_id,
         config_hash=cfg.config_hash(),
         config_yaml=yaml.safe_dump(cfg.model_dump(mode="json")),
-        equity=result["equity"],
+        equity=result.equity,
         benchmark_equity=_benchmark_equity(panel, cfg.universe.benchmark),
-        turnover=result["turnover"],
-        weights=result["weights"],
+        turnover=result.turnover,
+        weights=result.weights,
         n_trials_for_dsr=_count_research_log_trials(),
     )
     path = build_tearsheet(data, out)
@@ -213,7 +232,9 @@ def _count_research_log_trials() -> int:
 @app.command("validate")
 def validate(strategy: str) -> None:
     """Validation protocol stub. See ``docs/methodology/05_*.md``."""
-    typer.echo(f"validate {strategy!r}: see docs/methodology/05_validation_and_overfitting.md")
+    typer.echo(
+        f"validate {strategy!r}: see docs/methodology/05_validation_and_overfitting.md"
+    )
 
 
 def main() -> None:  # pragma: no cover

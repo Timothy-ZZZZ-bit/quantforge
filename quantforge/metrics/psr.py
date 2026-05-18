@@ -115,12 +115,14 @@ def deflated_sharpe(
     # Expected maximum of N iid standard normals (Gumbel approximation).
     # E[max(N)] ~ sqrt(2 ln N) - (ln ln N + ln 4 pi) / (2 sqrt(2 ln N)).
     gamma = 0.5772156649  # Euler-Mascheroni
-    z_max = (1.0 - gamma) * stats.norm.ppf(1.0 - 1.0 / n_trials) + gamma * stats.norm.ppf(
-        1.0 - 1.0 / (n_trials * math.e)
-    )
+    z_max = (1.0 - gamma) * stats.norm.ppf(
+        1.0 - 1.0 / n_trials
+    ) + gamma * stats.norm.ppf(1.0 - 1.0 / (n_trials * math.e))
     sr_bench_per_period = (sr_std / np.sqrt(periods_per_year)) * z_max
     sr_bench_annual = sr_bench_per_period * np.sqrt(periods_per_year)
-    return probabilistic_sharpe(r, benchmark_sr=float(sr_bench_annual), periods_per_year=periods_per_year)
+    return probabilistic_sharpe(
+        r, benchmark_sr=float(sr_bench_annual), periods_per_year=periods_per_year
+    )
 
 
 __all__ = ["deflated_sharpe", "probabilistic_sharpe"]

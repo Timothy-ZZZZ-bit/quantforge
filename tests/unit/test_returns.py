@@ -61,7 +61,9 @@ def test_reconstruct_prices_from_log_returns_roundtrip():
     prices = pd.Series([100.0, 105.0, 110.0, 100.0, 95.0])
     lr = log_returns(prices, fill_na=True)
     reconstructed = reconstruct_prices_from_log_returns(lr, base=prices.iloc[0])
-    np.testing.assert_allclose(reconstructed.to_numpy(), prices.iloc[1:].to_numpy(), atol=1e-10)
+    np.testing.assert_allclose(
+        reconstructed.to_numpy(), prices.iloc[1:].to_numpy(), atol=1e-10
+    )
 
 
 def test_frac_diff_ffd_preserves_length():
@@ -74,7 +76,9 @@ def test_frac_diff_ffd_preserves_length():
 def test_frac_diff_d_zero_returns_input():
     series = pd.Series([1.0, 2.0, 3.0, 4.0])
     fd = frac_diff_ffd(series, d=0.0)
-    np.testing.assert_allclose(fd.dropna().to_numpy(), series.to_numpy()[-len(fd.dropna()):])
+    np.testing.assert_allclose(
+        fd.dropna().to_numpy(), series.to_numpy()[-len(fd.dropna()) :]
+    )
 
 
 def test_frac_diff_d_one_is_difference():

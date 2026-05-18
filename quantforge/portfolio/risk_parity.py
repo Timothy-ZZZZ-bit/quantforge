@@ -75,8 +75,14 @@ def solve_erc_slsqp(cov: np.ndarray) -> np.ndarray:
     # Inverse-vol warm start, scaled to sum to 1.
     sd = np.sqrt(np.diag(cov))
     w0 = (1.0 / sd) / (1.0 / sd).sum()
-    res = minimize(loss, w0, bounds=bnds, constraints=cons, method="SLSQP",
-                   options={"maxiter": 500, "ftol": 1e-12})
+    res = minimize(
+        loss,
+        w0,
+        bounds=bnds,
+        constraints=cons,
+        method="SLSQP",
+        options={"maxiter": 500, "ftol": 1e-12},
+    )
     return res.x if res.success else w0
 
 
@@ -94,7 +100,9 @@ class EqualRiskContribution(Allocator):
 
     name = "erc"
 
-    def __init__(self, gross_leverage: float = 1.0, use_alpha_sign: bool = False) -> None:
+    def __init__(
+        self, gross_leverage: float = 1.0, use_alpha_sign: bool = False
+    ) -> None:
         self.gross_leverage = gross_leverage
         self.use_alpha_sign = use_alpha_sign
 

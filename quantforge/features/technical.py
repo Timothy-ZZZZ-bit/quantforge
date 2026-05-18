@@ -51,13 +51,22 @@ def momentum(prices: pd.Series, lookback: int, skip: int = 0) -> pd.Series:
     return prices.shift(skip) / prices.shift(skip + lookback) - 1.0
 
 
+def _log_series(x: pd.Series) -> pd.Series:
+    """Element-wise log that mypy recognizes as returning a Series.
+
+    ``np.log`` on a Series returns a Series at runtime, but the numpy stubs
+    type the result as ``ndarray``. This wrapper restores the Series type.
+    """
+    return pd.Series(np.log(x.to_numpy(dtype=float)), index=x.index, name=x.name)
+
+
 def _close_to_close_sd(close: pd.Series, window: int) -> pd.Series:
     r"""Close-to-close standard deviation.
 
     .. math::
         \hat{\sigma}_t = \sqrt{\frac{1}{n-1}\sum_{i=t-n+1}^{t} (r_i - \bar{r})^2}.
     """
-    r = np.log(close / close.shift(1))
+    r = _log_series(close / close.shift(1))
     return r.rolling(window).std(ddof=1)
 
 
@@ -69,9 +78,9 @@ def _parkinson_sd(high: pd.Series, low: pd.Series, window: int) -> pd.Series:
     """
     if (high <= 0).any() or (low <= 0).any():
         raise ValueError("Parkinson requires strictly positive high and low")
-    hl = np.log(high / low)
+    hl = _log_series(high / low)
     var = (hl**2).rolling(window).mean() / (4.0 * np.log(2.0))
-    return np.sqrt(var)
+    return pd.Series(np.sqrt(var.to_numpy()), index=var.index)
 
 
 def _garman_klass_sd(
@@ -85,10 +94,10 @@ def _garman_klass_sd(
     """
     if any((x <= 0).any() for x in (open_, high, low, close)):
         raise ValueError("Garman-Klass requires strictly positive prices")
-    hl = np.log(high / low) ** 2
-    co = np.log(close / open_) ** 2
+    hl = _log_series(high / low) ** 2
+    co = _log_series(close / open_) ** 2
     var = (0.5 * hl - (2.0 * np.log(2.0) - 1.0) * co).rolling(window).mean()
-    return np.sqrt(var.clip(lower=0.0))
+    return pd.Series(np.sqrt(var.clip(lower=0.0).to_numpy()), index=var.index)
 
 
 def _yang_zhang_sd(
@@ -109,10 +118,10 @@ def _yang_zhang_sd(
     """
     if any((x <= 0).any() for x in (open_, high, low, close)):
         raise ValueError("Yang-Zhang requires strictly positive prices")
-    o_c_prev = np.log(open_ / close.shift(1))
-    c_o = np.log(close / open_)
-    rs = (np.log(high / close) * np.log(high / open_)) + (
-        np.log(low / close) * np.log(low / open_)
+    o_c_prev = _log_series(open_ / close.shift(1))
+    c_o = _log_series(close / open_)
+    rs = (_log_series(high / close) * _log_series(high / open_)) + (
+        _log_series(low / close) * _log_series(low / open_)
     )
 
     sigma_o_sq = o_c_prev.rolling(window).var(ddof=1)
@@ -122,7 +131,7 @@ def _yang_zhang_sd(
     n = window
     k = 0.34 / (1.34 + (n + 1) / (n - 1))
     var = sigma_o_sq + k * sigma_c_sq + (1.0 - k) * sigma_rs_sq
-    return np.sqrt(var.clip(lower=0.0))
+    return pd.Series(np.sqrt(var.clip(lower=0.0).to_numpy()), index=var.index)
 
 
 def realized_vol(
@@ -159,9 +168,13 @@ def realized_vol(
     if method == "parkinson":
         return _parkinson_sd(df["high"], df["low"], window)
     if method == "garman_klass":
-        return _garman_klass_sd(df["open"], df["high"], df["low"], df["adj_close"], window)
+        return _garman_klass_sd(
+            df["open"], df["high"], df["low"], df["adj_close"], window
+        )
     if method == "yang_zhang":
-        return _yang_zhang_sd(df["open"], df["high"], df["low"], df["adj_close"], window)
+        return _yang_zhang_sd(
+            df["open"], df["high"], df["low"], df["adj_close"], window
+        )
     raise ValueError(f"unknown method: {method!r}")
 
 

@@ -16,7 +16,9 @@ from quantforge.portfolio import (
 def test_equal_weight_signed():
     alphas = pd.Series({"A": 1.0, "B": -1.0, "C": 0.5})
     w = EqualWeight().allocate(alphas)
-    assert w.sum() == pytest.approx(1.0 / 3.0, abs=1e-9)  # 2 longs (+1/3 each), 1 short (-1/3) -> 1/3 net
+    assert w.sum() == pytest.approx(
+        1.0 / 3.0, abs=1e-9
+    )  # 2 longs (+1/3 each), 1 short (-1/3) -> 1/3 net
     assert w.abs().sum() == pytest.approx(1.0, abs=1e-9)
 
 
@@ -48,13 +50,17 @@ def test_apply_constraints_infeasible_respects_caps():
 def test_apply_constraints_turnover_cap():
     prior = pd.Series({"A": 0.5, "B": 0.5})
     new = pd.Series({"A": 1.0, "B": 0.0})
-    c = Constraints(max_weight=1.0, min_weight=-1.0, gross_leverage=1.0, turnover_cap=0.5)
+    c = Constraints(
+        max_weight=1.0, min_weight=-1.0, gross_leverage=1.0, turnover_cap=0.5
+    )
     w = apply_constraints(new, c, prior_weights=prior)
     assert float((w - prior).abs().sum()) == pytest.approx(0.5, abs=1e-9)
 
 
 def test_mvo_returns_series(small_panel):
-    wide = small_panel.pivot(index="date", columns="ticker", values="adj_close").sort_index()
+    wide = small_panel.pivot(
+        index="date", columns="ticker", values="adj_close"
+    ).sort_index()
     rets = np.log(wide / wide.shift(1)).dropna()
     alphas = pd.Series(np.linspace(0.01, 0.05, len(wide.columns)), index=wide.columns)
     w = MeanVariance().allocate(alphas, rets)
@@ -63,7 +69,9 @@ def test_mvo_returns_series(small_panel):
 
 
 def test_erc_returns_series(small_panel):
-    wide = small_panel.pivot(index="date", columns="ticker", values="adj_close").sort_index()
+    wide = small_panel.pivot(
+        index="date", columns="ticker", values="adj_close"
+    ).sort_index()
     rets = np.log(wide / wide.shift(1)).dropna()
     alphas = pd.Series(1.0, index=wide.columns)
     w = EqualRiskContribution().allocate(alphas, rets)

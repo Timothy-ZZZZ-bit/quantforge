@@ -49,7 +49,8 @@ def recovery_time(returns: pd.Series) -> int:
     recovered = after[after >= -1e-9]
     if recovered.empty:
         return 0
-    return int(after.index.get_loc(recovered.index[0]))
+    loc = after.index.get_loc(recovered.index[0])
+    return int(loc) if isinstance(loc, int | np.integer) else 0
 
 
 __all__ = ["drawdown_series", "max_drawdown", "recovery_time", "time_underwater"]

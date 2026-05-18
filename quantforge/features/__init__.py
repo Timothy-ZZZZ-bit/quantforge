@@ -11,11 +11,7 @@ The features fall into four buckets:
 
 from __future__ import annotations
 
-from quantforge.features.cross_sectional import (
-    cs_rank,
-    cs_zscore,
-    sector_neutralize,
-)
+from quantforge.features.cross_sectional import cs_rank, cs_zscore, sector_neutralize
 from quantforge.features.labeling import meta_labels, triple_barrier
 from quantforge.features.microstructure import (
     amihud_illiquidity,
@@ -28,10 +24,7 @@ from quantforge.features.returns import (
     log_returns,
     simple_returns,
 )
-from quantforge.features.technical import (
-    momentum,
-    realized_vol,
-)
+from quantforge.features.technical import momentum, realized_vol
 
 __all__ = [
     "amihud_illiquidity",

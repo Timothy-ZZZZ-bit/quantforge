@@ -24,11 +24,26 @@ import pandas as pd
 # Selected to maximize cross-asset diversity for cross-sectional and pairs work
 # while remaining freely tradable on yfinance.
 _DEFAULT_ETF_BASKET: Final[tuple[str, ...]] = (
-    "SPY", "QQQ", "IWM", "DIA", "MDY",        # US equity
-    "EFA", "EEM", "EWJ", "FXI",                # Intl equity
-    "TLT", "IEF", "SHY", "LQD", "HYG", "TIP",  # Fixed income
-    "GLD", "SLV", "USO", "DBC",                # Commodities
-    "UUP",                                       # USD
+    "SPY",
+    "QQQ",
+    "IWM",
+    "DIA",
+    "MDY",  # US equity
+    "EFA",
+    "EEM",
+    "EWJ",
+    "FXI",  # Intl equity
+    "TLT",
+    "IEF",
+    "SHY",
+    "LQD",
+    "HYG",
+    "TIP",  # Fixed income
+    "GLD",
+    "SLV",
+    "USO",
+    "DBC",  # Commodities
+    "UUP",  # USD
 )
 
 
@@ -70,10 +85,16 @@ class SP500History:
     def _load_from_csv(self, path: Path) -> None:
         df = pd.read_csv(path)
         for row in df.itertuples(index=False):
-            start = pd.Timestamp(row.start_date)
+            start = pd.Timestamp(str(row.start_date))
             end_raw = getattr(row, "end_date", None)
-            end = pd.Timestamp(end_raw) if pd.notna(end_raw) and end_raw else pd.Timestamp.max
-            self._members.append(_Membership(ticker=row.ticker, start=start, end=end))
+            end = (
+                pd.Timestamp(str(end_raw))
+                if pd.notna(end_raw) and end_raw
+                else pd.Timestamp.max
+            )
+            self._members.append(
+                _Membership(ticker=str(row.ticker), start=start, end=end)
+            )
 
     def constituents_on(self, asof: str | date | pd.Timestamp) -> list[str]:
         """Return the list of tickers that were members on ``asof``.

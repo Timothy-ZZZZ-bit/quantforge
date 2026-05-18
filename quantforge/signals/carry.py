@@ -36,7 +36,7 @@ class ETFCarryProxy(Signal):
             adj = sub["adj_close"].reset_index(drop=True)
             mom = momentum(adj, self.lookback, self.skip).iloc[-1]
             if np.isfinite(mom):
-                scores[tk] = float(np.tanh(mom))
+                scores[str(tk)] = float(np.tanh(mom))
         if not scores:
             return pd.Series(dtype=float, name=self.name)
         s = pd.Series(scores, name=self.name)

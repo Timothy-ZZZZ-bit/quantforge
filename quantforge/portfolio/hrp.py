@@ -40,15 +40,15 @@ def _quasi_diag(link: np.ndarray) -> list[int]:
     sort_ix = pd.Series([link[-1, 0], link[-1, 1]])
     num_items = n_clusters
     while sort_ix.max() >= num_items:
-        sort_ix.index = range(0, sort_ix.shape[0] * 2, 2)
+        sort_ix.index = pd.RangeIndex(0, sort_ix.shape[0] * 2, 2)
         df0 = sort_ix[sort_ix >= num_items]
         i = df0.index
         j = df0.to_numpy() - num_items
         sort_ix[i] = link[j, 0]
         df0 = pd.Series(link[j, 1], index=i + 1)
         sort_ix = pd.concat([sort_ix, df0]).sort_index()
-        sort_ix.index = range(sort_ix.shape[0])
-    return sort_ix.tolist()
+        sort_ix.index = pd.RangeIndex(sort_ix.shape[0])
+    return [int(v) for v in sort_ix.tolist()]
 
 
 def _ivp(cov: np.ndarray) -> np.ndarray:
@@ -63,9 +63,12 @@ def _recursive_bisection(cov: np.ndarray, sort_ix: list[int]) -> np.ndarray:
     w = np.ones(len(sort_ix))
     clusters = [sort_ix]
     while clusters:
-        clusters = [c[i:j] for c in clusters for i, j in (
-            (0, len(c) // 2), (len(c) // 2, len(c))
-        ) if len(c) > 1 and len(c[i:j]) > 0]
+        clusters = [
+            c[i:j]
+            for c in clusters
+            for i, j in ((0, len(c) // 2), (len(c) // 2, len(c)))
+            if len(c) > 1 and len(c[i:j]) > 0
+        ]
         # Iterate in pairs.
         for i in range(0, len(clusters), 2):
             if i + 1 >= len(clusters):

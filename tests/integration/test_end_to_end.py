@@ -30,7 +30,9 @@ def test_synthetic_end_to_end():
         sigma_annual=0.18,
     )
 
-    wide_close = panel.pivot(index="date", columns="ticker", values="adj_close").sort_index()
+    wide_close = panel.pivot(
+        index="date", columns="ticker", values="adj_close"
+    ).sort_index()
     rets_hist = np.log(wide_close / wide_close.shift(1))
 
     sig = TimeSeriesMomentum(lookback=63, skip=5, vol_window=21)
@@ -45,7 +47,11 @@ def test_synthetic_end_to_end():
         w = alloc.allocate(alpha, hist)
         return w.to_dict()
 
-    engine = BacktestEngine(panel, weight_fn, cost_model=CostModel(commission_bps=0, slippage_bps=0, impact_coef=0))
+    engine = BacktestEngine(
+        panel,
+        weight_fn,
+        cost_model=CostModel(commission_bps=0, slippage_bps=0, impact_coef=0),
+    )
     result = engine.run()
     r = result.returns()
     assert len(r) > 252

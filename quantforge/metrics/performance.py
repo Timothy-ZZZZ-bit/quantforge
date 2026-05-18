@@ -22,7 +22,7 @@ def annualized_return(
     r = returns.dropna()
     if r.empty:
         return float("nan")
-    total = float((1.0 + r).prod())
+    total = float(np.prod(1.0 + r.to_numpy(dtype=float)))
     n_years = len(r) / periods_per_year
     if n_years <= 0:
         return float("nan")

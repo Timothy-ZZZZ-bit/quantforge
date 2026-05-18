@@ -49,8 +49,10 @@ def historical_stress(
 ) -> list[StressResult]:
     """Apply each stress window to a returns series and summarize."""
     out: list[StressResult] = []
+    idx = pd.DatetimeIndex(returns.index)
     for w in windows:
-        sub = returns.loc[w.start : w.end].dropna()
+        mask = (idx >= pd.Timestamp(w.start)) & (idx <= pd.Timestamp(w.end))
+        sub = returns.loc[mask].dropna()
         if sub.empty:
             out.append(
                 StressResult(

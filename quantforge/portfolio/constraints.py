@@ -55,7 +55,9 @@ def apply_constraints(
         # Scale up to the gross leverage target, but re-clip to caps; if the
         # caps then bind, accept the lower gross leverage rather than oscillate.
         scaled = w * (constraints.gross_leverage / gross)
-        clipped = scaled.clip(lower=constraints.min_weight, upper=constraints.max_weight)
+        clipped = scaled.clip(
+            lower=constraints.min_weight, upper=constraints.max_weight
+        )
         # If clipping caused the scale-up to recover the cap, keep the clipped value.
         w = clipped
     if constraints.turnover_cap is not None and prior_weights is not None:

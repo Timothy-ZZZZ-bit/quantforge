@@ -29,7 +29,9 @@ from quantforge.constants import (
 )
 
 
-def commission_cost(traded_notional: float, bps: float = DEFAULT_COMMISSION_BPS) -> float:
+def commission_cost(
+    traded_notional: float, bps: float = DEFAULT_COMMISSION_BPS
+) -> float:
     """Flat-rate commission in basis points of traded notional."""
     return abs(traded_notional) * bps / 10_000.0
 
@@ -110,7 +112,10 @@ class CostModel:
 
     def carry_cost(self, position_notional_by_asset: dict[str, float]) -> float:
         """Sum of borrow costs across short positions for one bar."""
-        return sum(daily_borrow_cost(n, self.borrow_bps_annual) for n in position_notional_by_asset.values())
+        return sum(
+            daily_borrow_cost(n, self.borrow_bps_annual)
+            for n in position_notional_by_asset.values()
+        )
 
     def scale(self, multiplier: float) -> CostModel:
         """Return a copy with every per-trade component scaled by ``multiplier``.

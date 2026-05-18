@@ -41,7 +41,8 @@ class BacktestResult:
         return self.equity.pct_change().dropna()
 
     def log_returns(self) -> pd.Series:
-        return np.log(self.equity / self.equity.shift(1)).dropna()
+        ratio = self.equity / self.equity.shift(1)
+        return pd.Series(np.log(ratio.to_numpy()), index=self.equity.index).dropna()
 
 
 def _wide(panel: pd.DataFrame, field: str) -> pd.DataFrame:
@@ -91,14 +92,20 @@ class BacktestEngine:
         self._open = _wide(self.panel, "open")
         self._close = _wide(self.panel, "adj_close")
         self._volume = _wide(self.panel, "volume")
-        self._dates: pd.DatetimeIndex = self._close.index
+        self._dates: pd.DatetimeIndex = pd.DatetimeIndex(self._close.index)
         self._rebalance_dates = self._build_rebalance_calendar()
 
     def _build_rebalance_calendar(self) -> set[pd.Timestamp]:
         if self.rebalance_freq == "D":
             return set(self._dates)
         # The 'right' edge of the resample is the rebalance trigger.
-        idx = pd.Series(1, index=self._dates).resample(self.rebalance_freq).first().dropna().index
+        idx = (
+            pd.Series(1, index=self._dates)
+            .resample(self.rebalance_freq)
+            .first()
+            .dropna()
+            .index
+        )
         # Snap each anchor to the nearest available bar in our data.
         snapped = self._dates.searchsorted(idx)
         snapped = snapped[snapped < len(self._dates)]
@@ -150,7 +157,9 @@ class BacktestEngine:
                 pending_target_shares = None
 
             # Mark to market at the current bar close.
-            mtm_prices = {tk: float(close_now.get(tk, np.nan)) for tk in close_now.index}
+            mtm_prices = {
+                tk: float(close_now.get(tk, np.nan)) for tk in close_now.index
+            }
             equity = self.state.mark_to_market(date, mtm_prices)
 
             # Carry/borrow cost for shorts (per bar).
@@ -177,7 +186,8 @@ class BacktestEngine:
                 cost_frac = (
                     self.cost_model.commission_bps / 10_000.0
                     + (self.cost_model.slippage_bps / 10_000.0) * self.participation_cap
-                    + self.cost_model.impact_coef * float(np.sqrt(self.participation_cap))
+                    + self.cost_model.impact_coef
+                    * float(np.sqrt(self.participation_cap))
                 )
                 # Bookkeep weights and turnover.
                 self.state.weight_history.append((date, weights))
@@ -186,7 +196,10 @@ class BacktestEngine:
                     if len(self.state.weight_history) >= 2
                     else dict.fromkeys(weights, 0.0)
                 )
-                turnover = sum(abs(weights.get(tk, 0.0) - prev_w.get(tk, 0.0)) for tk in set(weights) | set(prev_w))
+                turnover = sum(
+                    abs(weights.get(tk, 0.0) - prev_w.get(tk, 0.0))
+                    for tk in set(weights) | set(prev_w)
+                )
                 self.state.turnover.append((date, float(turnover)))
 
         return BacktestResult(

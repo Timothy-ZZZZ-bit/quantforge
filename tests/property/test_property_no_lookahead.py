@@ -28,7 +28,9 @@ def test_no_lookahead_under_future_permutation():
     future = panel[panel["date"] > cutoff].copy()
     rng = np.random.default_rng(0)
     future["adj_close"] = rng.permutation(future["adj_close"].to_numpy())
-    perturbed = pd.concat([past, future], ignore_index=True).sort_values(["date", "ticker"])
+    perturbed = pd.concat([past, future], ignore_index=True).sort_values(
+        ["date", "ticker"]
+    )
     eng2 = BacktestEngine(perturbed, _eq_weight_fn, cost_model=CostModel())
     res2 = eng2.run()
 

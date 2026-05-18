@@ -47,9 +47,7 @@ def fractional_kelly(
     return float(fraction * mu / var)
 
 
-def vol_target_scale(
-    realized_vol_annual: float, target_vol_annual: float
-) -> float:
+def vol_target_scale(realized_vol_annual: float, target_vol_annual: float) -> float:
     """Multiplier that brings realized vol to a target annual level."""
     if realized_vol_annual <= 0:
         return 0.0

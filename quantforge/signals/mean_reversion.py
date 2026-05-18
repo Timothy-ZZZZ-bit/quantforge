@@ -77,7 +77,9 @@ class OUMeanReversion(Signal):
         return self
 
     def predict(self, panel: pd.DataFrame) -> pd.Series:
-        wide = panel.pivot(index="date", columns="ticker", values="adj_close").sort_index()
+        wide = panel.pivot(
+            index="date", columns="ticker", values="adj_close"
+        ).sort_index()
         if self.market_ticker not in wide.columns or wide.shape[0] < self.window + 2:
             return pd.Series(dtype=float, name=self.name)
         mkt = np.log(wide[self.market_ticker]).dropna()
