@@ -35,9 +35,7 @@ class CrossSectionalMomentum(Signal):
 
     name = "xsmom"
 
-    def __init__(
-        self, lookback: int = 252, skip: int = 21, decile: float = 0.10
-    ) -> None:
+    def __init__(self, lookback: int = 252, skip: int = 21, decile: float = 0.10) -> None:
         if not 0 < decile < 0.5:
             raise ValueError("decile must be in (0, 0.5)")
         self.lookback = lookback

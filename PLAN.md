@@ -4,7 +4,7 @@
 
 QuantForge is a production-grade systematic trading research platform demonstrating
 the full quant research lifecycle. This file tracks build progress against the
-spec in `the original build specification`.
+original build specification.
 
 ## Phase breakdown
 

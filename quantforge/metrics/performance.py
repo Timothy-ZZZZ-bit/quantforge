@@ -12,9 +12,7 @@ import pandas as pd
 from quantforge.constants import TRADING_DAYS_PER_YEAR
 
 
-def annualized_return(
-    returns: pd.Series, periods_per_year: int = TRADING_DAYS_PER_YEAR
-) -> float:
+def annualized_return(returns: pd.Series, periods_per_year: int = TRADING_DAYS_PER_YEAR) -> float:
     """Geometric annualized return.
 
     :math:`(1 + r_d)^N - 1` where :math:`r_d` is the realized geometric mean.

@@ -53,9 +53,7 @@ class QualityFactor(Signal):
             if len(sub) < self.lookback + 1:
                 continue
             adj = sub["adj_close"].iloc[-self.lookback - 1 :]
-            r = pd.Series(
-                np.log((adj / adj.shift(1)).to_numpy()), index=adj.index
-            ).dropna()
+            r = pd.Series(np.log((adj / adj.shift(1)).to_numpy()), index=adj.index).dropna()
             mean = r.mean() * TRADING_DAYS_PER_YEAR
             vol = r.std(ddof=1) * np.sqrt(TRADING_DAYS_PER_YEAR)
             if vol <= 0:
@@ -66,9 +64,7 @@ class QualityFactor(Signal):
             rows.append((str(tk), sharpe, float(vol), dd))
         if not rows:
             return pd.Series(dtype=float, name=self.name)
-        df = pd.DataFrame(rows, columns=["ticker", "sharpe", "vol", "dd"]).set_index(
-            "ticker"
-        )
+        df = pd.DataFrame(rows, columns=["ticker", "sharpe", "vol", "dd"]).set_index("ticker")
         df["date"] = panel["date"].max()  # synthetic date column for cs_zscore
         z_sharpe = cs_zscore(df.reset_index(), "sharpe", by="date").to_numpy()
         z_negvol = -cs_zscore(df.reset_index(), "vol", by="date").to_numpy()

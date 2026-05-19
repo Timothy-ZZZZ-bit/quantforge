@@ -3,11 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from quantforge.features.microstructure import (
-    amihud_illiquidity,
-    kyle_lambda,
-    roll_spread,
-)
+from quantforge.features.microstructure import amihud_illiquidity, kyle_lambda, roll_spread
 
 
 def _series(n: int = 120, seed: int = 0) -> tuple[pd.Series, pd.Series]:

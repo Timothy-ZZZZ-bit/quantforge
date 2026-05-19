@@ -99,13 +99,7 @@ class BacktestEngine:
         if self.rebalance_freq == "D":
             return set(self._dates)
         # The 'right' edge of the resample is the rebalance trigger.
-        idx = (
-            pd.Series(1, index=self._dates)
-            .resample(self.rebalance_freq)
-            .first()
-            .dropna()
-            .index
-        )
+        idx = pd.Series(1, index=self._dates).resample(self.rebalance_freq).first().dropna().index
         # Snap each anchor to the nearest available bar in our data.
         snapped = self._dates.searchsorted(idx)
         snapped = snapped[snapped < len(self._dates)]
@@ -157,9 +151,7 @@ class BacktestEngine:
                 pending_target_shares = None
 
             # Mark to market at the current bar close.
-            mtm_prices = {
-                tk: float(close_now.get(tk, np.nan)) for tk in close_now.index
-            }
+            mtm_prices = {tk: float(close_now.get(tk, np.nan)) for tk in close_now.index}
             equity = self.state.mark_to_market(date, mtm_prices)
 
             # Carry/borrow cost for shorts (per bar).
@@ -186,8 +178,7 @@ class BacktestEngine:
                 cost_frac = (
                     self.cost_model.commission_bps / 10_000.0
                     + (self.cost_model.slippage_bps / 10_000.0) * self.participation_cap
-                    + self.cost_model.impact_coef
-                    * float(np.sqrt(self.participation_cap))
+                    + self.cost_model.impact_coef * float(np.sqrt(self.participation_cap))
                 )
                 # Bookkeep weights and turnover.
                 self.state.weight_history.append((date, weights))

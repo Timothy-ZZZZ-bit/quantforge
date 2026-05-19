@@ -107,9 +107,7 @@ def summarize_results(
 def _equity_chart(equity: pd.Series, benchmark_equity: pd.Series | None) -> str:
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True, row_heights=[0.7, 0.3])
     fig.add_trace(
-        go.Scatter(
-            x=equity.index, y=equity / equity.iloc[0], mode="lines", name="Strategy"
-        ),
+        go.Scatter(x=equity.index, y=equity / equity.iloc[0], mode="lines", name="Strategy"),
         row=1,
         col=1,
     )
@@ -141,9 +139,7 @@ def _equity_chart(equity: pd.Series, benchmark_equity: pd.Series | None) -> str:
         col=1,
     )
     fig.update_yaxes(title="Drawdown", tickformat=".0%", row=2, col=1)
-    fig.update_layout(
-        template="plotly_white", height=520, margin=dict(l=20, r=20, t=20, b=20)
-    )
+    fig.update_layout(template="plotly_white", height=520, margin=dict(l=20, r=20, t=20, b=20))
     return fig.to_html(include_plotlyjs="cdn", full_html=False, div_id="eq-chart")
 
 
@@ -151,9 +147,7 @@ def _drawdown_chart(equity: pd.Series) -> str:
     dd = drawdown_series(equity.pct_change().dropna())
     fig = go.Figure()
     fig.add_trace(
-        go.Scatter(
-            x=dd.index, y=dd, mode="lines", fill="tozeroy", line=dict(color="#d62728")
-        )
+        go.Scatter(x=dd.index, y=dd, mode="lines", fill="tozeroy", line=dict(color="#d62728"))
     )
     fig.update_layout(
         template="plotly_white",
@@ -169,9 +163,7 @@ def _rolling_chart(equity: pd.Series, benchmark_equity: pd.Series | None) -> str
     roll_sharpe = (r.rolling(252).mean() / r.rolling(252).std(ddof=1)) * np.sqrt(252)
     fig = make_subplots(rows=2, cols=1, shared_xaxes=True)
     fig.add_trace(
-        go.Scatter(
-            x=roll_sharpe.index, y=roll_sharpe, mode="lines", name="Rolling 12m Sharpe"
-        ),
+        go.Scatter(x=roll_sharpe.index, y=roll_sharpe, mode="lines", name="Rolling 12m Sharpe"),
         row=1,
         col=1,
     )
@@ -181,24 +173,18 @@ def _rolling_chart(equity: pd.Series, benchmark_equity: pd.Series | None) -> str
         var = br.rolling(252).var(ddof=1)
         beta = (cov / var).reindex(r.index)
         fig.add_trace(
-            go.Scatter(
-                x=beta.index, y=beta, mode="lines", name="Rolling beta to benchmark"
-            ),
+            go.Scatter(x=beta.index, y=beta, mode="lines", name="Rolling beta to benchmark"),
             row=2,
             col=1,
         )
-    fig.update_layout(
-        template="plotly_white", height=420, margin=dict(l=20, r=20, t=20, b=20)
-    )
+    fig.update_layout(template="plotly_white", height=420, margin=dict(l=20, r=20, t=20, b=20))
     return fig.to_html(include_plotlyjs=False, full_html=False, div_id="rolling-chart")
 
 
 def _dist_chart(equity: pd.Series) -> str:
     r = equity.pct_change().dropna()
     fig = go.Figure()
-    fig.add_trace(
-        go.Histogram(x=r, nbinsx=60, histnorm="probability density", name="Empirical")
-    )
+    fig.add_trace(go.Histogram(x=r, nbinsx=60, histnorm="probability density", name="Empirical"))
     xs = np.linspace(r.min(), r.max(), 200)
     mu, sd = r.mean(), r.std(ddof=1)
     fig.add_trace(
@@ -209,9 +195,7 @@ def _dist_chart(equity: pd.Series) -> str:
             name="Normal fit",
         )
     )
-    fig.update_layout(
-        template="plotly_white", height=320, margin=dict(l=20, r=20, t=20, b=20)
-    )
+    fig.update_layout(template="plotly_white", height=320, margin=dict(l=20, r=20, t=20, b=20))
     return fig.to_html(include_plotlyjs=False, full_html=False, div_id="dist-chart")
 
 
@@ -239,18 +223,10 @@ def _per_year_table(equity: pd.Series) -> str:
     df = yearly.to_frame("Return")
     df["Vol"] = r.groupby(year).std(ddof=1) * np.sqrt(252)
     df["Sharpe"] = r.groupby(year).apply(
-        lambda s: (
-            (s.mean() / s.std(ddof=1)) * np.sqrt(252)
-            if s.std(ddof=1) > 0
-            else float("nan")
-        )
+        lambda s: ((s.mean() / s.std(ddof=1)) * np.sqrt(252) if s.std(ddof=1) > 0 else float("nan"))
     )
     df = df.map(
-        lambda v: (
-            format(v, ".2%")
-            if abs(v) < 5 and isinstance(v, float)
-            else format(v, ".2f")
-        )
+        lambda v: (format(v, ".2%") if abs(v) < 5 and isinstance(v, float) else format(v, ".2f"))
     )
     return df.to_html(border=0, classes="per-year")
 
@@ -308,9 +284,7 @@ def build_tearsheet(data: TearsheetData, output_path: Path) -> Path:
         _kpi("PSR vs zero", probabilistic_sharpe(r, benchmark_sr=0.0), ".3f"),
     ]
     if data.turnover is not None and not data.turnover.empty:
-        kpis.append(
-            _kpi("Avg turnover", float(data.turnover.mean()), ".2f", sub="rebalance")
-        )
+        kpis.append(_kpi("Avg turnover", float(data.turnover.mean()), ".2f", sub="rebalance"))
 
     out = tpl.render(
         run_name=data.run_name,

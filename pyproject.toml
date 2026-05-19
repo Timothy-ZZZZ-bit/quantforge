@@ -85,6 +85,17 @@ Repository = "https://github.com/Timothy-ZZZZ-bit/quantforge"
 [tool.hatch.build.targets.wheel]
 packages = ["quantforge"]
 
+# Black, isort, and ruff must all agree on a 100-character line length.
+# ruff.toml sets line-length = 100; these sections keep black and isort
+# in lockstep so `black --check` and `isort --check-only` cannot disagree.
+[tool.black]
+line-length = 100
+target-version = ["py311"]
+
+[tool.isort]
+profile = "black"
+line_length = 100
+
 [tool.pytest.ini_options]
 minversion = "8.0"
 addopts = "-ra --strict-markers --strict-config"

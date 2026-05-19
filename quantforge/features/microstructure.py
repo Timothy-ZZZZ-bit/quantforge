@@ -20,9 +20,7 @@ import numpy as np
 import pandas as pd
 
 
-def amihud_illiquidity(
-    returns: pd.Series, dollar_volume: pd.Series, window: int = 21
-) -> pd.Series:
+def amihud_illiquidity(returns: pd.Series, dollar_volume: pd.Series, window: int = 21) -> pd.Series:
     r"""Amihud (2002) illiquidity proxy.
 
     Mathematical Definition
@@ -65,9 +63,7 @@ def roll_spread(close: pd.Series, window: int = 21) -> pd.Series:
     return spread
 
 
-def kyle_lambda(
-    returns: pd.Series, signed_dollar_volume: pd.Series, window: int = 21
-) -> pd.Series:
+def kyle_lambda(returns: pd.Series, signed_dollar_volume: pd.Series, window: int = 21) -> pd.Series:
     r"""Kyle's lambda price-impact proxy.
 
     Fits :math:`r_t = \lambda \, V^{\text{signed}}_t + \epsilon_t` over a

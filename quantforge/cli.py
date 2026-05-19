@@ -85,19 +85,13 @@ def _build_allocator(cfg: RunConfig) -> Allocator:
 
 
 def _benchmark_equity(panel: pd.DataFrame, benchmark: str) -> pd.Series:
-    sub = (
-        panel[panel["ticker"] == benchmark]
-        .sort_values("date")
-        .set_index("date")["adj_close"]
-    )
+    sub = panel[panel["ticker"] == benchmark].sort_values("date").set_index("date")["adj_close"]
     if sub.empty:
         return pd.Series(dtype=float)
     return sub / sub.iloc[0] * 1_000_000.0
 
 
-def _run_one(
-    cfg: RunConfig, panel: pd.DataFrame, run_id: str  # noqa: ARG001
-) -> BacktestResult:
+def _run_one(cfg: RunConfig, panel: pd.DataFrame, run_id: str) -> BacktestResult:  # noqa: ARG001
     from quantforge.backtest import BacktestEngine
     from quantforge.portfolio import Constraints, apply_constraints
 
@@ -110,9 +104,7 @@ def _run_one(
         turnover_cap=cfg.constraints.turnover_cap,
     )
 
-    wide_close = panel.pivot(
-        index="date", columns="ticker", values="adj_close"
-    ).sort_index()
+    wide_close = panel.pivot(index="date", columns="ticker", values="adj_close").sort_index()
     returns_hist = pd.DataFrame(
         np.log((wide_close / wide_close.shift(1)).to_numpy()),
         index=wide_close.index,
@@ -153,9 +145,7 @@ def _run_one(
         ),
         initial_cash=1_000_000.0,
         rebalance_freq=(
-            "BMS"
-            if cfg.rebalance == "M"
-            else ("W-FRI" if cfg.rebalance == "W" else "D")
+            "BMS" if cfg.rebalance == "M" else ("W-FRI" if cfg.rebalance == "W" else "D")
         ),
         participation_cap=cfg.costs.participation_cap,
     )
@@ -176,12 +166,8 @@ def run_config(config_path: Path) -> None:
     if not result.weights.empty:
         result.weights.to_parquet(artifact_dir / "weights.parquet")
     if not result.turnover.empty:
-        result.turnover.to_frame("turnover").to_parquet(
-            artifact_dir / "turnover.parquet"
-        )
-    (artifact_dir / "config.yaml").write_text(
-        yaml.safe_dump(cfg.model_dump(mode="json"))
-    )
+        result.turnover.to_frame("turnover").to_parquet(artifact_dir / "turnover.parquet")
+    (artifact_dir / "config.yaml").write_text(yaml.safe_dump(cfg.model_dump(mode="json")))
     # Append to the research log.
     RESEARCH_LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
     with RESEARCH_LOG_PATH.open("a", encoding="utf-8") as fh:
@@ -191,9 +177,7 @@ def run_config(config_path: Path) -> None:
             "config_hash": cfg.config_hash(),
             "timestamp": datetime.now(UTC).isoformat(),
             "n_bars": len(result.equity),
-            "final_equity": (
-                float(result.equity.iloc[-1]) if len(result.equity) else float("nan")
-            ),
+            "final_equity": (float(result.equity.iloc[-1]) if len(result.equity) else float("nan")),
         }
         fh.write(json.dumps(rec) + "\n")
     typer.echo(f"run_id={run_id} artifacts={artifact_dir}")
@@ -232,9 +216,7 @@ def _count_research_log_trials() -> int:
 @app.command("validate")
 def validate(strategy: str) -> None:
     """Validation protocol stub. See ``docs/methodology/05_*.md``."""
-    typer.echo(
-        f"validate {strategy!r}: see docs/methodology/05_validation_and_overfitting.md"
-    )
+    typer.echo(f"validate {strategy!r}: see docs/methodology/05_validation_and_overfitting.md")
 
 
 def main() -> None:  # pragma: no cover

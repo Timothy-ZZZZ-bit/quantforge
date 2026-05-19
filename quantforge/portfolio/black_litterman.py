@@ -96,9 +96,7 @@ class BlackLittermanAllocator(Allocator):
         mvo = MeanVariance(risk_aversion=self.risk_aversion, gross_leverage=1.0)
         return mvo.allocate(
             pd.Series(mu_hat, index=tickers),
-            returns_history=pd.DataFrame(
-                sigma, index=range(sigma.shape[0]), columns=tickers
-            ).iloc[
+            returns_history=pd.DataFrame(sigma, index=range(sigma.shape[0]), columns=tickers).iloc[
                 :0
             ],  # trick: empty frame so MVO uses identity sigma
         )

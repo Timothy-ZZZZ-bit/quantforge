@@ -97,14 +97,10 @@ class PairsTrade(Signal):
         return list(combinations(sorted(tickers), 2))
 
     def predict(self, panel: pd.DataFrame) -> pd.Series:
-        wide = panel.pivot(
-            index="date", columns="ticker", values="adj_close"
-        ).sort_index()
+        wide = panel.pivot(index="date", columns="ticker", values="adj_close").sort_index()
         if wide.shape[0] < self.window + 2:
             return pd.Series(dtype=float, name=self.name)
-        log_wide = pd.DataFrame(
-            np.log(wide.to_numpy()), index=wide.index, columns=wide.columns
-        )
+        log_wide = pd.DataFrame(np.log(wide.to_numpy()), index=wide.index, columns=wide.columns)
         recent = log_wide.iloc[-self.window :]
         scores: dict[str, float] = {}
         pairs = self._pairs_to_consider(list(wide.columns))

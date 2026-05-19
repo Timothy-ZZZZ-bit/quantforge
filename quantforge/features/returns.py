@@ -151,9 +151,7 @@ def annualize_volatility(daily_vol: float, periods_per_year: int = 252) -> float
     return float(daily_vol * np.sqrt(periods_per_year))
 
 
-def reconstruct_prices_from_log_returns(
-    log_rets: pd.Series, base: float = 1.0
-) -> pd.Series:
+def reconstruct_prices_from_log_returns(log_rets: pd.Series, base: float = 1.0) -> pd.Series:
     """Reconstruct a price path from log returns (used in tests)."""
     if abs(base) < EPS:
         raise ValueError("base must be non-zero")

@@ -13,11 +13,7 @@ from __future__ import annotations
 
 from quantforge.features.cross_sectional import cs_rank, cs_zscore, sector_neutralize
 from quantforge.features.labeling import meta_labels, triple_barrier
-from quantforge.features.microstructure import (
-    amihud_illiquidity,
-    kyle_lambda,
-    roll_spread,
-)
+from quantforge.features.microstructure import amihud_illiquidity, kyle_lambda, roll_spread
 from quantforge.features.returns import (
     cumulative_returns,
     frac_diff_ffd,

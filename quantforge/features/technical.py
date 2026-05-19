@@ -168,13 +168,9 @@ def realized_vol(
     if method == "parkinson":
         return _parkinson_sd(df["high"], df["low"], window)
     if method == "garman_klass":
-        return _garman_klass_sd(
-            df["open"], df["high"], df["low"], df["adj_close"], window
-        )
+        return _garman_klass_sd(df["open"], df["high"], df["low"], df["adj_close"], window)
     if method == "yang_zhang":
-        return _yang_zhang_sd(
-            df["open"], df["high"], df["low"], df["adj_close"], window
-        )
+        return _yang_zhang_sd(df["open"], df["high"], df["low"], df["adj_close"], window)
     raise ValueError(f"unknown method: {method!r}")
 
 

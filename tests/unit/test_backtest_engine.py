@@ -17,9 +17,7 @@ def test_walk_forward_yields_disjoint_test_windows():
 
 def test_walk_forward_expanding_grows():
     idx = pd.bdate_range("2010-01-04", periods=252 * 6)
-    splits = list(
-        walk_forward_splits(idx, train_years=3, test_years=1, mode="expanding")
-    )
+    splits = list(walk_forward_splits(idx, train_years=3, test_years=1, mode="expanding"))
     first_train_len = (splits[0].train_end - splits[0].train_start).days
     last_train_len = (splits[-1].train_end - splits[-1].train_start).days
     assert last_train_len >= first_train_len

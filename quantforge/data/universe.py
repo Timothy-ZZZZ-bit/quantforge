@@ -87,14 +87,8 @@ class SP500History:
         for row in df.itertuples(index=False):
             start = pd.Timestamp(str(row.start_date))
             end_raw = getattr(row, "end_date", None)
-            end = (
-                pd.Timestamp(str(end_raw))
-                if pd.notna(end_raw) and end_raw
-                else pd.Timestamp.max
-            )
-            self._members.append(
-                _Membership(ticker=str(row.ticker), start=start, end=end)
-            )
+            end = pd.Timestamp(str(end_raw)) if pd.notna(end_raw) and end_raw else pd.Timestamp.max
+            self._members.append(_Membership(ticker=str(row.ticker), start=start, end=end))
 
     def constituents_on(self, asof: str | date | pd.Timestamp) -> list[str]:
         """Return the list of tickers that were members on ``asof``.

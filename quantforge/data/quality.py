@@ -100,9 +100,7 @@ def audit_panel(
         )
 
     miss_frac = {
-        c: float(df[c].isna().mean())
-        for c in REQUIRED_COLS
-        if c not in ("date", "ticker")
+        c: float(df[c].isna().mean()) for c in REQUIRED_COLS if c not in ("date", "ticker")
     }
     zero_vol = float((df["volume"] == 0).mean())
 
@@ -131,9 +129,7 @@ def audit_panel(
     by_ticker = panel.groupby("ticker", observed=True)["adj_close"]
     log_ret = by_ticker.transform(lambda s: np.log(s / s.shift(1)))
     ret_groups = log_ret.groupby(panel["ticker"], observed=True)
-    z = (log_ret - ret_groups.transform("mean")) / ret_groups.transform(
-        lambda s: s.std(ddof=0)
-    )
+    z = (log_ret - ret_groups.transform("mean")) / ret_groups.transform(lambda s: s.std(ddof=0))
     spike_count = int((z.abs() > spike_sigma).sum())
 
     warnings_: list[str] = []

@@ -60,9 +60,7 @@ def test_erc_spinu_matches_slsqp():
 
 
 def test_hrp_allocator_returns_series(small_panel):
-    wide = small_panel.pivot(
-        index="date", columns="ticker", values="adj_close"
-    ).sort_index()
+    wide = small_panel.pivot(index="date", columns="ticker", values="adj_close").sort_index()
     rets = np.log(wide / wide.shift(1)).dropna()
     alphas = pd.Series(1.0, index=wide.columns)
     w = HRPAllocator().allocate(alphas, rets)

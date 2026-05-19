@@ -58,7 +58,7 @@ def test_yf_columns_single_index():
 def test_load_equity_panel_with_fake_yfinance(monkeypatch: pytest.MonkeyPatch):
     fake = types.ModuleType("yfinance")
 
-    def _download(ticker, **kwargs):  # noqa: ARG001
+    def _download(ticker, **kwargs):
         return _fake_yf_frame()
 
     fake.download = _download  # type: ignore[attr-defined]
@@ -84,7 +84,7 @@ def test_load_fama_french_with_fake_reader(monkeypatch: pytest.MonkeyPatch):
     fake_pdr = types.ModuleType("pandas_datareader")
     fake_data = types.ModuleType("pandas_datareader.data")
 
-    def _reader(name, source, *args, **kwargs):  # noqa: ARG001
+    def _reader(name, source, *args, **kwargs):
         idx = pd.bdate_range("2020-01-02", periods=40, name="Date")
         ff = pd.DataFrame(
             {
@@ -128,11 +128,9 @@ def test_load_macro_series_with_fake_reader(monkeypatch: pytest.MonkeyPatch):
     fake_pdr = types.ModuleType("pandas_datareader")
     fake_data = types.ModuleType("pandas_datareader.data")
 
-    def _reader(series_ids, source, start, end):  # noqa: ARG001
+    def _reader(series_ids, source, start, end):
         idx = pd.bdate_range("2020-01-02", periods=10, name="DATE")
-        return pd.DataFrame(
-            {s: np.arange(10, dtype=float) for s in series_ids}, index=idx
-        )
+        return pd.DataFrame({s: np.arange(10, dtype=float) for s in series_ids}, index=idx)
 
     fake_data.DataReader = _reader  # type: ignore[attr-defined]
     fake_pdr.data = fake_data  # type: ignore[attr-defined]

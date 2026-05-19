@@ -29,9 +29,7 @@ from quantforge.constants import (
 )
 
 
-def commission_cost(
-    traded_notional: float, bps: float = DEFAULT_COMMISSION_BPS
-) -> float:
+def commission_cost(traded_notional: float, bps: float = DEFAULT_COMMISSION_BPS) -> float:
     """Flat-rate commission in basis points of traded notional."""
     return abs(traded_notional) * bps / 10_000.0
 

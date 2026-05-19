@@ -26,9 +26,7 @@ from sklearn.covariance import LedoitWolf
 from quantforge.portfolio.base import Allocator
 
 
-def solve_erc_spinu(
-    cov: np.ndarray, *, tol: float = 1e-10, max_iter: int = 5000
-) -> np.ndarray:
+def solve_erc_spinu(cov: np.ndarray, *, tol: float = 1e-10, max_iter: int = 5000) -> np.ndarray:
     """Cyclic coordinate descent to ERC weights (Spinu 2013).
 
     The algorithm updates each weight as the positive solution to the
@@ -100,9 +98,7 @@ class EqualRiskContribution(Allocator):
 
     name = "erc"
 
-    def __init__(
-        self, gross_leverage: float = 1.0, use_alpha_sign: bool = False
-    ) -> None:
+    def __init__(self, gross_leverage: float = 1.0, use_alpha_sign: bool = False) -> None:
         self.gross_leverage = gross_leverage
         self.use_alpha_sign = use_alpha_sign
 

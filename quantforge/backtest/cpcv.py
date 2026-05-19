@@ -80,9 +80,7 @@ def cpcv_indices(
         emb = _embargo_mask(test_idx, n_obs, embargo)
         emb[test_idx] = True  # also remove the test indices themselves
         train_idx = np.where(~emb)[0]
-        splits.append(
-            CPCVSplit(train_idx=train_idx, test_idx=test_idx, test_groups=combo)
-        )
+        splits.append(CPCVSplit(train_idx=train_idx, test_idx=test_idx, test_groups=combo))
     return splits
 
 

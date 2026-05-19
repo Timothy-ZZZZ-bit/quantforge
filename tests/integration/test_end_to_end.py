@@ -30,9 +30,7 @@ def test_synthetic_end_to_end():
         sigma_annual=0.18,
     )
 
-    wide_close = panel.pivot(
-        index="date", columns="ticker", values="adj_close"
-    ).sort_index()
+    wide_close = panel.pivot(index="date", columns="ticker", values="adj_close").sort_index()
     rets_hist = np.log(wide_close / wide_close.shift(1))
 
     sig = TimeSeriesMomentum(lookback=63, skip=5, vol_window=21)

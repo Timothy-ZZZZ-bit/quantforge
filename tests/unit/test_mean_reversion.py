@@ -43,9 +43,7 @@ def _frame(ticker: str, prices: np.ndarray, dates: pd.DatetimeIndex) -> pd.DataF
 
 def test_ou_mean_reversion_produces_signal():
     panel = _market_plus_meanrev_panel()
-    sig = OUMeanReversion(
-        market_ticker="SPY", window=120, entry_z=0.5, max_half_life_days=60.0
-    )
+    sig = OUMeanReversion(market_ticker="SPY", window=120, entry_z=0.5, max_half_life_days=60.0)
     sig.fit(panel)
     out = sig.predict(panel)
     assert isinstance(out, pd.Series)

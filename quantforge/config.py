@@ -32,9 +32,7 @@ RebalanceFreq = Literal["D", "W", "M"]
 class UniverseConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
-    name: str = Field(
-        ..., description="Universe identifier, e.g. SPY-components or ETF-basket"
-    )
+    name: str = Field(..., description="Universe identifier, e.g. SPY-components or ETF-basket")
     tickers: list[str] = Field(default_factory=list)
     start: str
     end: str
@@ -53,9 +51,7 @@ class SignalConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     name: str
-    kind: str = Field(
-        ..., description="One of: tsmom, xsmom, pairs, ou, ml, carry, quality"
-    )
+    kind: str = Field(..., description="One of: tsmom, xsmom, pairs, ou, ml, carry, quality")
     params: dict[str, Any] = Field(default_factory=dict)
     weight: float = 1.0
 
@@ -129,9 +125,7 @@ class RunConfig(BaseModel):
 
     def config_hash(self) -> str:
         """Stable hash of the full configuration."""
-        payload = json.dumps(
-            self.model_dump(mode="json"), sort_keys=True, separators=(",", ":")
-        )
+        payload = json.dumps(self.model_dump(mode="json"), sort_keys=True, separators=(",", ":"))
         return hashlib.sha256(payload.encode("utf-8")).hexdigest()[:16]
 
 

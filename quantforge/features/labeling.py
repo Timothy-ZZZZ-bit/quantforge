@@ -148,9 +148,7 @@ def meta_labels(
     pd.Series
         Binary series aligned to the intersection of the inputs.
     """
-    joined = pd.concat(
-        {"pred": primary_predictions, "bin": triple_barrier_bins}, axis=1
-    ).dropna()
+    joined = pd.concat({"pred": primary_predictions, "bin": triple_barrier_bins}, axis=1).dropna()
     return (np.sign(joined["pred"]) == np.sign(joined["bin"])).astype(int)
 
 

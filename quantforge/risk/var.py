@@ -59,9 +59,7 @@ def parametric_var(
     """
     r = returns.dropna().to_numpy()
     if len(r) < 30:
-        return VaRResult(
-            float("nan"), float("nan"), float("nan"), confidence, "parametric"
-        )
+        return VaRResult(float("nan"), float("nan"), float("nan"), confidence, "parametric")
     z = stats.norm.ppf(1.0 - confidence)
 
     def stat(s: np.ndarray) -> float:
@@ -81,9 +79,7 @@ def historical_var(
     """Empirical-quantile VaR."""
     r = returns.dropna().to_numpy()
     if len(r) < 30:
-        return VaRResult(
-            float("nan"), float("nan"), float("nan"), confidence, "historical"
-        )
+        return VaRResult(float("nan"), float("nan"), float("nan"), confidence, "historical")
     q = 1.0 - confidence
 
     def stat(s: np.ndarray) -> float:
@@ -111,9 +107,7 @@ def cornish_fisher_var(
     """
     r = returns.dropna().to_numpy()
     if len(r) < 30:
-        return VaRResult(
-            float("nan"), float("nan"), float("nan"), confidence, "cornish_fisher"
-        )
+        return VaRResult(float("nan"), float("nan"), float("nan"), confidence, "cornish_fisher")
     z = stats.norm.ppf(1.0 - confidence)
 
     def stat(s: np.ndarray) -> float:

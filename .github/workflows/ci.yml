@@ -52,13 +52,7 @@ jobs:
       - run: pip install uv
       - run: uv pip install --system -e ".[dev]"
       - name: Unit + property tests
-        run: pytest tests/unit tests/property --cov=quantforge --cov-report=xml -q
-      - name: Upload coverage
-        if: matrix.python == '3.11'
-        uses: codecov/codecov-action@v4
-        with:
-          file: ./coverage.xml
-          fail_ci_if_error: false
+        run: pytest tests/unit tests/property --cov=quantforge --cov-report=term -q
 
   integration:
     if: github.event_name == 'schedule' || github.event_name == 'push'

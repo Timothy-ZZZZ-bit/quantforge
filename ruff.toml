@@ -49,11 +49,10 @@ ignore = [
   "NPY002",
   "PLC0415",  # local imports are deliberate in CLI / factories
   "PLW0603",  # module-level _CONFIGURED is the canonical pattern for one-shot setup
-  "RUF059",   # unpack ignores are fine
 ]
 
 [lint.per-file-ignores]
-"tests/**/*.py" = ["PLR2004", "ARG001", "ARG002", "B011", "PLR0915"]
+"tests/**/*.py" = ["PLR2004", "ARG001", "ARG002", "ARG005", "B011", "PLR0915"]
 "quantforge/cli.py" = ["B008"]
 "quantforge/signals/*.py" = ["ARG002"]
 "quantforge/portfolio/*.py" = ["ARG002"]

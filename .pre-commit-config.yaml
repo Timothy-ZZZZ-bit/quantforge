@@ -12,17 +12,23 @@ repos:
       - id: detect-private-key
 
   - repo: https://github.com/astral-sh/ruff-pre-commit
-    rev: v0.5.7
+    rev: v0.6.9
     hooks:
       - id: ruff
         args: [--fix]
-      - id: ruff-format
 
   - repo: https://github.com/pycqa/isort
     rev: 5.13.2
     hooks:
       - id: isort
         args: ["--profile", "black", "--line-length", "100"]
+
+  # black runs last so it has the final say on formatting, mirroring the
+  # CI lint job which runs `black --check`.
+  - repo: https://github.com/psf/black
+    rev: 24.10.0
+    hooks:
+      - id: black
 
   - repo: https://github.com/kynan/nbstripout
     rev: 0.7.1

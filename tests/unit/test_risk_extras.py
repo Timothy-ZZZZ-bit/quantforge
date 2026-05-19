@@ -3,12 +3,7 @@ from __future__ import annotations
 import numpy as np
 import pandas as pd
 
-from quantforge.risk.drawdown import (
-    drawdown_series,
-    max_drawdown,
-    recovery_time,
-    time_underwater,
-)
+from quantforge.risk.drawdown import drawdown_series, max_drawdown, recovery_time, time_underwater
 from quantforge.risk.sizing import fractional_kelly, vol_target_scale
 from quantforge.risk.stress import STRESS_WINDOWS, historical_stress
 

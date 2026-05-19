@@ -56,9 +56,7 @@ def test_sp500_history_empty_without_data():
 
 def test_sp500_history_from_csv(tmp_path: Path):
     csv = tmp_path / "membership.csv"
-    csv.write_text(
-        "ticker,start_date,end_date\n" "AAA,2010-01-01,2015-01-01\n" "BBB,2012-01-01,\n"
-    )
+    csv.write_text("ticker,start_date,end_date\n" "AAA,2010-01-01,2015-01-01\n" "BBB,2012-01-01,\n")
     hist = SP500History(membership_path=csv)
     assert hist.has_data
     assert hist.constituents_on("2013-06-01") == ["AAA", "BBB"]

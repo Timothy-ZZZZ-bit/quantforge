@@ -8,9 +8,7 @@ import pandas as pd
 from quantforge.constants import DEFAULT_CONFIDENCE_LEVEL
 
 
-def expected_shortfall(
-    returns: pd.Series, confidence: float = DEFAULT_CONFIDENCE_LEVEL
-) -> float:
+def expected_shortfall(returns: pd.Series, confidence: float = DEFAULT_CONFIDENCE_LEVEL) -> float:
     r"""Empirical expected shortfall at confidence :math:`\\alpha`.
 
     .. math::
